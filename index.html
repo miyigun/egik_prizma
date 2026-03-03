@@ -2017,7 +2017,7 @@ $('#kurilContinueBtn').on('click',function(){
 
 /* ══ TAB ════════════════════════════════════════════════════════ */
 $('.tab-button').on('click',function(){ if(!$(this).prop('disabled')){ $('.tab-button').removeClass('active'); $(this).addClass('active'); loadApplication($(this).data('tab')); } });
-function loadApplication(n){ $('#contentArea').empty(); if(n==='app1') loadApp1(); else if(n==='app2') loadApp2(); else if(n==='app3') loadApp3(); }
+function loadApplication(n){ $('#contentArea').empty(); if(n==='app1') loadApp1(); else if(n==='app2') loadApp2(); else if(n==='app3') loadApp3(); else if(n==='free') loadFree(); }
 
 /* ══ UYGULAMA 1 ═════════════════════════════════════════════════ */
 function loadApp1(){
@@ -2212,6 +2212,23 @@ function loadApp3(){
         $(document).off('click.app3choice');
         renderApp3Step(0);
     });
+}
+
+/* ══ SERBEST MOD ═════════════════════════════════════════════════ */
+function loadFree(){
+    destroyCalc();
+    resetToolbar();
+    $('#freeButton').show();
+    $('#contentArea').html(`
+        <div class="instruction-box">
+            <h3>🔓 Serbest Mod</h3>
+            <p>Hesap makinesini kullanarak istediğiniz hesapları yapabilirsiniz.</p>
+        </div>
+        <div style="text-align:center;margin-top:16px;">
+            <button class="action-button" id="freeCalcBtn">🧮 Hesap Makinesini Aç</button>
+        </div>
+    `);
+    $('#freeCalcBtn').on('click', openCalcDialog);
 }
 
 /* A4 kağıdı: çizgisiz, A/B/K/L noktaları + kalem ikonları */
@@ -3256,6 +3273,7 @@ function renderApp3Step(step){
         if(window.MathJax) MathJax.typesetPromise();
 
         $('[data-tab="deepening"]').prop('disabled', false);
+        $('#freeButton').show();
         $('#app3FinishBtn').on('click', function(){
             $('[data-tab="deepening"]').prop('disabled', false).click();
         });
@@ -3569,6 +3587,161 @@ function buildCalc(containerId, onSin78){
 
 function destroyCalc(){
     $(document).off('keydown.calc');
+}
+
+/* ══ SERBEST MOD HESAP MAKİNESİ DİYALOGU ═══════════════════════ */
+let freeCalcExpr='', freeCalcOp='', freeCalcPrev='', freeCalcJustOp=false, freeCalcJustEq=false;
+
+function openCalcDialog(){
+    function numStr(v){
+        if(!isFinite(v)) return 'hata';
+        const s=parseFloat(v.toFixed(4)).toString();
+        return s.replace('.',',');
+    }
+    function updateFreeDisplay(txt){
+        $('#freeCalcDisplay').text(txt!==undefined?txt:(freeCalcExpr===''?'0':freeCalcExpr.replace('.',',')));
+    }
+    function calcTrigVal(fn,deg){
+        const rad=deg*Math.PI/180;
+        if(fn==='sin') return Math.sin(rad);
+        if(fn==='cos') return Math.cos(rad);
+        if(fn==='tan') return Math.tan(rad);
+        if(fn==='cot'){ const t=Math.tan(rad); return Math.abs(t)<1e-10?NaN:1/t; }
+    }
+    function applyFreeOp(a,op,b){
+        if(op==='add') return a+b;
+        if(op==='sub') return a-b;
+        if(op==='mul') return a*b;
+        if(op==='div') return b!==0?a/b:NaN;
+        return b;
+    }
+    function handleFreeCalcKey(k){
+        if(k>='0'&&k<='9'){
+            if(freeCalcJustEq||freeCalcJustOp){ freeCalcExpr=''; freeCalcJustEq=false; freeCalcJustOp=false; }
+            if(freeCalcExpr.replace(/-/g,'').replace(/,/g,'').length<10) freeCalcExpr+=k;
+            if(freeCalcOp&&freeCalcPrev!==''){
+                const opSym={add:'+',sub:'−',mul:'×',div:'÷'};
+                updateFreeDisplay(numStr(parseFloat(freeCalcPrev))+' '+opSym[freeCalcOp]+' '+freeCalcExpr);
+            } else { updateFreeDisplay(); }
+            return;
+        }
+        if(k===','){
+            if(freeCalcJustEq||freeCalcJustOp){ freeCalcExpr='0,'; freeCalcJustEq=false; freeCalcJustOp=false; }
+            else if(!freeCalcExpr.includes(',')) freeCalcExpr+=(freeCalcExpr===''||freeCalcExpr==='-'?'0':'')+',';
+            if(freeCalcOp&&freeCalcPrev!==''){
+                const opSym={add:'+',sub:'−',mul:'×',div:'÷'};
+                updateFreeDisplay(numStr(parseFloat(freeCalcPrev))+' '+opSym[freeCalcOp]+' '+freeCalcExpr.replace('.',','));
+            } else { updateFreeDisplay(); }
+            return;
+        }
+        if(k==='del'){
+            if(!freeCalcJustEq) freeCalcExpr=freeCalcExpr.slice(0,-1);
+            freeCalcJustEq=false; freeCalcJustOp=false; updateFreeDisplay(); return;
+        }
+        if(k==='clear'){
+            freeCalcExpr=''; freeCalcOp=''; freeCalcPrev=''; freeCalcJustOp=false; freeCalcJustEq=false;
+            updateFreeDisplay(); $('#calcTrigResult').text(''); return;
+        }
+        if(k==='pm'){
+            if(freeCalcExpr.startsWith('-')) freeCalcExpr=freeCalcExpr.slice(1);
+            else if(freeCalcExpr!=='') freeCalcExpr='-'+freeCalcExpr;
+            updateFreeDisplay(); return;
+        }
+        if(['add','sub','mul','div'].includes(k)){
+            if(freeCalcExpr!==''){
+                if(freeCalcOp&&freeCalcPrev!==''){
+                    const a=parseFloat(freeCalcPrev.replace(',','.'));
+                    const b=parseFloat(freeCalcExpr.replace(',','.'));
+                    const res=applyFreeOp(a,freeCalcOp,b);
+                    freeCalcPrev=numStr(res).replace(',','.');
+                    updateFreeDisplay(numStr(res));
+                } else { freeCalcPrev=freeCalcExpr.replace(',','.'); }
+            }
+            freeCalcOp=k; freeCalcJustOp=true; freeCalcJustEq=false;
+            const opSym={add:'+',sub:'−',mul:'×',div:'÷'};
+            updateFreeDisplay((freeCalcPrev!==''?numStr(parseFloat(freeCalcPrev)):'0')+' '+opSym[k]);
+            return;
+        }
+        if(k==='eq'){
+            if(freeCalcOp&&freeCalcPrev!==''&&freeCalcExpr!==''){
+                const a=parseFloat(freeCalcPrev.replace(',','.'));
+                const b=parseFloat(freeCalcExpr.replace(',','.'));
+                const res=applyFreeOp(a,freeCalcOp,b);
+                const resStr=numStr(res);
+                updateFreeDisplay(resStr);
+                freeCalcExpr=resStr.replace(',','.');
+                freeCalcPrev=''; freeCalcOp=''; freeCalcJustEq=true;
+            } else { updateFreeDisplay(); }
+            return;
+        }
+        if(['sin','cos','tan','cot'].includes(k)){
+            const deg=parseFloat(freeCalcExpr.replace(',','.'));
+            if(isNaN(deg)){ $('#calcTrigResult').css('color','#ef4444').text('Önce derece değeri girin!'); return; }
+            const result=calcTrigVal(k,deg);
+            if(!isFinite(result)){ $('#calcTrigResult').css('color','#ef4444').text(k+'('+deg+'°) = tanımsız'); return; }
+            const resStr=numStr(result);
+            updateFreeDisplay(resStr);
+            $('#calcTrigResult').css('color','var(--text-accent)').text(k+'('+deg+'°) = '+resStr);
+            freeCalcExpr=resStr.replace(',','.');
+            freeCalcJustEq=true;
+            return;
+        }
+    }
+    function bindCalcDialogEvents(){
+        $('#calcDialog').off('click.calc').on('click.calc','.calc-key',function(e){
+            e.preventDefault();
+            if($(this).prop('disabled')) return;
+            handleFreeCalcKey($(this).data('key').toString());
+        });
+    }
+    if($('#calcDialog').length){
+        $('#calcDialog').fadeIn(200);
+        bindCalcDialogEvents();
+        return;
+    }
+    $('body').append(`
+        <div class="dialog-overlay" id="calcDialog" style="display:none;">
+            <div class="dialog-content scrollable" style="max-width:320px;padding:18px;">
+                <h2 style="font-size:1.2em;margin-bottom:10px;">🧮 Hesap Makinesi</h2>
+                <div class="calc-display" id="freeCalcDisplay">0</div>
+                <div id="calcTrigResult" style="color:var(--text-accent);font-size:.85em;min-height:18px;margin-bottom:6px;text-align:right;"></div>
+                <div class="calc-keys">
+                    <button class="calc-key fn" data-key="sin">sin</button>
+                    <button class="calc-key fn" data-key="cos">cos</button>
+                    <button class="calc-key fn" data-key="tan">tan</button>
+                    <button class="calc-key fn" data-key="cot">cot</button>
+                    <button class="calc-key" data-key="7">7</button>
+                    <button class="calc-key" data-key="8">8</button>
+                    <button class="calc-key" data-key="9">9</button>
+                    <button class="calc-key del" data-key="del">&#x232b;</button>
+                    <button class="calc-key" data-key="4">4</button>
+                    <button class="calc-key" data-key="5">5</button>
+                    <button class="calc-key" data-key="6">6</button>
+                    <button class="calc-key op" data-key="mul">&times;</button>
+                    <button class="calc-key" data-key="1">1</button>
+                    <button class="calc-key" data-key="2">2</button>
+                    <button class="calc-key" data-key="3">3</button>
+                    <button class="calc-key op" data-key="div">&divide;</button>
+                    <button class="calc-key op" data-key="add">+</button>
+                    <button class="calc-key op" data-key="sub">&minus;</button>
+                    <button class="calc-key op" data-key="clear">C</button>
+                    <button class="calc-key op" data-key="pm">&plusmn;</button>
+                    <button class="calc-key" data-key="0" style="grid-column:span 2;">0</button>
+                    <button class="calc-key op" data-key=",">,</button>
+                    <button class="calc-key eq" data-key="eq">=</button>
+                </div>
+                <div class="dialog-btn-row" style="margin-top:10px;">
+                    <button class="action-button" id="calcCloseBtn">Kapat</button>
+                </div>
+            </div>
+        </div>
+    `);
+    $('#calcCloseBtn').on('click',function(){
+        $('#calcDialog').fadeOut(200);
+        $('#calcDialog').off('click.calc');
+    });
+    bindCalcDialogEvents();
+    $('#calcDialog').fadeIn(200);
 }
 
 /* ══ UYGULAMA 2 ADIMLARI ═════════════════════════════��══════════ */
