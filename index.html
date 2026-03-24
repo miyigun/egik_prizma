@@ -2306,7 +2306,7 @@ $('.tab-button').on('click',function(){ if(!$(this).prop('disabled')){ $('.tab-b
 function loadApplication(n){
     $('#contentArea').empty();
     // Serbest moddan kalan sahne elemanlarını temizle
-    if(window._eaFootGroup && mainScene){ mainScene.remove(window._eaFootGroup); window._eaFootGroup=null; }
+    if(_eaFootGroup && mainScene){ mainScene.remove(_eaFootGroup); _eaFootGroup=null; }
     if(eahGroup){ mainScene && mainScene.remove(eahGroup); eahGroup=null; }
     // Eğer mainPrism gizlendiyse (Uygulama 3 adım 3'ten kalma) geri aç
     if(mainPrism) mainPrism.visible=true;
