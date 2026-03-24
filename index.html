@@ -2304,7 +2304,10 @@ $('#kurilContinueBtn').on('click',function(){
 /* ══ TAB ════════════════════════════════════════════════════════ */
 $('.tab-button').on('click',function(){ if(!$(this).prop('disabled')){ $('.tab-button').removeClass('active'); $(this).addClass('active'); loadApplication($(this).data('tab')); } });
 function loadApplication(n){ 
-    $('#contentArea').empty(); 
+    $('#contentArea').empty();
+    if(window._rightPrismGroup && mainScene){ mainScene.remove(window._rightPrismGroup); window._rightPrismGroup=null; }
+    if(mainPrism) mainPrism.visible=true;
+    camTheta=CAM_INIT_THETA; camPhi=CAM_INIT_PHI; camDist=CAM_INIT_DIST; updateCamera();
     if(n==='app1') loadApp1(); 
     else if(n==='app2') loadApp2(); 
     else if(n==='app3') loadApp3(); 
