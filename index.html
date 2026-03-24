@@ -2307,7 +2307,7 @@ function loadApplication(n){
     $('#contentArea').empty();
     // Serbest moddan kalan sahne elemanlarını temizle
     if(window._eaFootGroup && mainScene){ mainScene.remove(window._eaFootGroup); window._eaFootGroup=null; }
-    hideEAHOverlay();
+    if(eahGroup){ mainScene && mainScene.remove(eahGroup); eahGroup=null; }
     // Eğer mainPrism gizlendiyse (Uygulama 3 adım 3'ten kalma) geri aç
     if(mainPrism) mainPrism.visible=true;
     if(edgeLineObjs.length) edgeLineObjs.forEach(l=>l.visible=true);
