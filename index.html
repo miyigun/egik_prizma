@@ -2305,9 +2305,9 @@ $('#kurilContinueBtn').on('click',function(){
 $('.tab-button').on('click',function(){ if(!$(this).prop('disabled')){ $('.tab-button').removeClass('active'); $(this).addClass('active'); loadApplication($(this).data('tab')); } });
 function loadApplication(n){ 
     $('#contentArea').empty();
-    if(window._rightPrismGroup && mainScene){ mainScene.remove(window._rightPrismGroup); window._rightPrismGroup=null; }
-    if(mainPrism) mainPrism.visible=true;
-    camTheta=CAM_INIT_THETA; camPhi=CAM_INIT_PHI; camDist=CAM_INIT_DIST; updateCamera();
+    hideEAHOverlay();
+    if(window._eaFootGroup){ mainScene.remove(window._eaFootGroup); window._eaFootGroup=null; }
+    if(window._rightPrismGroup){ mainScene.remove(window._rightPrismGroup); window._rightPrismGroup=null; }
     if(n==='app1') loadApp1(); 
     else if(n==='app2') loadApp2(); 
     else if(n==='app3') loadApp3(); 
