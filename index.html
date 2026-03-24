@@ -838,12 +838,44 @@ function resetToolbar(){
     updateHint();
 }
 
+function addAxisArrows(scene){
+    const axes=[
+        {dir:new THREE.Vector3(1,0,0), color:0xff4444, label:'x'},
+        {dir:new THREE.Vector3(0,1,0), color:0x44ff44, label:'y'},
+        {dir:new THREE.Vector3(0,0,1), color:0x4488ff, label:'z'},
+    ];
+    const origin=new THREE.Vector3(0,0,0);
+    const len=4.5, coneH=0.28, coneR=0.07;
+    axes.forEach(({dir,color,label})=>{
+        // Gövde çizgisi
+        const pts=[origin.clone(), dir.clone().multiplyScalar(len)];
+        const line=new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints(pts),
+            new THREE.LineBasicMaterial({color,linewidth:2})
+        );
+        scene.add(line);
+        // Ok ucu (koni)
+        const cg=new THREE.ConeGeometry(coneR,coneH,12);
+        const cm=new THREE.MeshBasicMaterial({color});
+        const cone=new THREE.Mesh(cg,cm);
+        cone.position.copy(dir.clone().multiplyScalar(len+coneH/2));
+        // Koniyi eksen yönüne döndür
+        cone.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir);
+        scene.add(cone);
+        // Etiket sprite
+        const sp=makeTextSprite(label,{color:['#ff4444','#44ff44','#4488ff'][['x','y','z'].indexOf(label)],fontSize:26});
+        sp.position.copy(dir.clone().multiplyScalar(len+coneH+0.28));
+        scene.add(sp);
+    });
+}
+
 function buildPrismScene(){
     mainScene=new THREE.Scene();
     mainScene.add(new THREE.AmbientLight(0xffffff,.85));
     const dl1=new THREE.DirectionalLight(0xffffff,.95); dl1.position.set(5,10,6); mainScene.add(dl1);
     const dl2=new THREE.DirectionalLight(0xaaddff,.4); dl2.position.set(-5,4,-6); mainScene.add(dl2);
     const grid=new THREE.GridHelper(12,24,0x00d4ff,0x1a2347); grid.position.y=-0.01; mainScene.add(grid);
+    addAxisArrows(mainScene);
     const geo=buildPrismBufferGeometry();
     faceMaterials=[];
     for(let f=0;f<6;f++) faceMaterials.push(new THREE.MeshPhongMaterial({color:DEFAULT_COLOR,transparent:true,opacity:0.72,side:THREE.DoubleSide,shininess:90}));
@@ -2736,6 +2768,7 @@ function rebuildPrismSceneWith(pw, pd, aelen, ae_x, ae_y, angDeg){
     const dl1 = new THREE.DirectionalLight(0xffffff, .95); dl1.position.set(5,10,6); mainScene.add(dl1);
     const dl2 = new THREE.DirectionalLight(0xaaddff, .4);  dl2.position.set(-5,4,-6); mainScene.add(dl2);
     const grid = new THREE.GridHelper(12,24,0x00d4ff,0x1a2347); grid.position.y=-0.01; mainScene.add(grid);
+    addAxisArrows(mainScene);
 
     // Köşe koordinatları (sabit formüle uygun)
     const A = new THREE.Vector3( pw/2,    0,    -pd/2);
