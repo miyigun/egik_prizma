@@ -1262,7 +1262,7 @@ function paintFaceAtClick(cx,cy){
                 $('#angleStatus').html(`✓ <strong>${faceName}</strong> yüzü seçildi. Şimdi açıölçer ikonuna tıklayın.`).css('color','var(--text-accent)');
             } else {
                 // Paralelkenar olmayan yüz seçildi
-                $('#angleStatus').html(`⚠ Eğik prizmanın <strong>paralelkenar yüzlerinden birini</strong> seçiniz.`).css('color','#f97316');
+                $('#angleStatus').html(`⚠ Eğik prizmanın dikdörtgen olmayan <strong>paralelkenar yüzlerinden birini</strong> seçiniz.`).css('color','#f97316');
             }
         }
         return false;
@@ -2386,8 +2386,8 @@ function loadApp1(){
         case 6:
             html+=`<div class="instruction-box">
                 <h3>Paralelkenar Yüzlerin İç Açılarını Ölçme</h3>
-                <p>Eğik prizmanın <strong>paralelkenar yüzlerinden birini</strong> seçiniz. Ardından <strong>açıölçer ikonuna</strong> tıklayınız. Daha sonra seçilen yüzün <strong>3 köşe noktasına sırayla</strong> tıklayınız.</p>
-                <p id="angleStatus" style="margin-top:8px;font-size:12px;color:var(--text-secondary);">⬡ Bir paralelkenar yüzüne tıklayınız.</p>
+                <p>Eğik prizmanın dikdörtgen olmayan <strong>paralelkenar yüzlerinden birini</strong> seçiniz. Ardından <strong>açıölçer ikonuna</strong> tıklayınız. Daha sonra seçilen yüzün <strong>3 köşe noktasına sırayla</strong> tıklayınız.</p>
+                <p id="angleStatus" style="margin-top:8px;font-size:12px;color:var(--text-secondary);">⬡ Dikdörtgen olmayan bir paralelkenar yüze tıklayınız.</p>
             </div>
             <div style="text-align:center;"><button class="action-button" id="angleDoneBtn" disabled>Devam Et →</button></div>`;
             angleMeasureCount=0;
