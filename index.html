@@ -840,9 +840,9 @@ function resetToolbar(){
 
 function addAxisArrows(scene){
     const axes=[
-        {dir:new THREE.Vector3(1,0,0), color:0xff4444, label:'x'},
+        {dir:new THREE.Vector3(-1,0,0), color:0xff4444, label:'x'},
         {dir:new THREE.Vector3(0,1,0), color:0x44ff44, label:'y'},
-        {dir:new THREE.Vector3(0,0,1), color:0x4488ff, label:'z'},
+        {dir:new THREE.Vector3(0,0,-1), color:0x4488ff, label:'z'},
     ];
     const origin=new THREE.Vector3(0,0,0);
     const len=4.5, coneH=0.28, coneR=0.07;
