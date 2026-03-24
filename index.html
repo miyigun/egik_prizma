@@ -2303,15 +2303,24 @@ $('#kurilContinueBtn').on('click',function(){
 
 /* ══ TAB ════════════════════════════════════════════════════════ */
 $('.tab-button').on('click',function(){ if(!$(this).prop('disabled')){ $('.tab-button').removeClass('active'); $(this).addClass('active'); loadApplication($(this).data('tab')); } });
-function loadApplication(n){ 
+function loadApplication(n){
     $('#contentArea').empty();
+    // Serbest moddan kalan sahne elemanlarını temizle
+    if(window._eaFootGroup && mainScene){ mainScene.remove(window._eaFootGroup); window._eaFootGroup=null; }
     hideEAHOverlay();
-    if(window._eaFootGroup){ mainScene.remove(window._eaFootGroup); window._eaFootGroup=null; }
-    if(window._rightPrismGroup){ mainScene.remove(window._rightPrismGroup); window._rightPrismGroup=null; }
-    if(n==='app1') loadApp1(); 
-    else if(n==='app2') loadApp2(); 
-    else if(n==='app3') loadApp3(); 
-    else if(n==='free') loadFree(); 
+    // Eğer mainPrism gizlendiyse (Uygulama 3 adım 3'ten kalma) geri aç
+    if(mainPrism) mainPrism.visible=true;
+    if(edgeLineObjs.length) edgeLineObjs.forEach(l=>l.visible=true);
+    if(labelSprites.length) labelSprites.forEach(s=>s.visible=true);
+    if(cornerSpheres.length) cornerSpheres.forEach(s=>s.visible=true);
+    if(edgeCylinders.length) edgeCylinders.forEach(c=>c.visible=true);
+    if(_rightPrismGroup && mainScene){ mainScene.remove(_rightPrismGroup); _rightPrismGroup=null; }
+    // Kamerayı başlangıç konumuna sıfırla
+    camTheta=CAM_INIT_THETA; camPhi=CAM_INIT_PHI; camDist=CAM_INIT_DIST; updateCamera();
+    if(n==='app1') loadApp1();
+    else if(n==='app2') loadApp2();
+    else if(n==='app3') loadApp3();
+    else if(n==='free') loadFree();
 }
 
 /* ══ UYGULAMA 1 ═════════════════════════════════════════════════ */
