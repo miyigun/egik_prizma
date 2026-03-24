@@ -839,50 +839,32 @@ function resetToolbar(){
 }
 
 function addAxisArrows(scene){
-    const axes = [
-        // X ekseni → SAĞA (+X)
-        {dir: new THREE.Vector3( 1, 0, 0), color: 0xff4444, label: 'x'},
-        
-        // Y ekseni → YUKARI (+Y)  (bu zaten doğruydu)
-        {dir: new THREE.Vector3( 0, 1, 0), color: 0x44ff44, label: 'y'},
-        
-        // Z ekseni → DERİNLİK YÖNÜNE (kullanıcıya doğru = +Z)
-        // Klasik 3D gösterimde en güzel görünüm için +Z’yi hafifçe arkaya da verebiliriz.
-        // En temiz hali:
-        {dir: new THREE.Vector3( 0, 0, 1), color: 0x4488ff, label: 'z'},
+    const axes=[
+        {dir:new THREE.Vector3(1,0,0), color:0xff4444, label:'x'},
+        {dir:new THREE.Vector3(0,1,0), color:0x44ff44, label:'y'},
+        {dir:new THREE.Vector3(0,0,1), color:0x4488ff, label:'z'},
     ];
-
-    const origin = new THREE.Vector3(0, 0, 0);
-    const len = 4.8;           // biraz uzattım ki daha net görünsün
-    const coneH = 0.32;
-    const coneR = 0.085;
-
-    axes.forEach(({dir, color, label}) => {
+    const origin=new THREE.Vector3(0,0,0);
+    const len=4.5, coneH=0.28, coneR=0.07;
+    axes.forEach(({dir,color,label})=>{
         // Gövde çizgisi
-        const pts = [origin.clone(), dir.clone().multiplyScalar(len)];
-        const line = new THREE.Line(
+        const pts=[origin.clone(), dir.clone().multiplyScalar(len)];
+        const line=new THREE.Line(
             new THREE.BufferGeometry().setFromPoints(pts),
-            new THREE.LineBasicMaterial({color, linewidth: 2.5})
+            new THREE.LineBasicMaterial({color,linewidth:2})
         );
         scene.add(line);
-
         // Ok ucu (koni)
-        const cg = new THREE.ConeGeometry(coneR, coneH, 16);
-        const cm = new THREE.MeshBasicMaterial({color});
-        const cone = new THREE.Mesh(cg, cm);
-        
-        cone.position.copy(dir.clone().multiplyScalar(len + coneH/2));
-        cone.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir);
+        const cg=new THREE.ConeGeometry(coneR,coneH,12);
+        const cm=new THREE.MeshBasicMaterial({color});
+        const cone=new THREE.Mesh(cg,cm);
+        cone.position.copy(dir.clone().multiplyScalar(len+coneH/2));
+        // Koniyi eksen yönüne döndür
+        cone.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir);
         scene.add(cone);
-
-        // Etiket
-        const sp = makeTextSprite(label, {
-            color: ['#ff4444','#44ff44','#4488ff'][['x','y','z'].indexOf(label)],
-            fontSize: 28
-        });
-        
-        // Etiketi ok ucundan biraz daha uzağa koy (daha temiz görünüm)
-        sp.position.copy(dir.clone().multiplyScalar(len + coneH + 0.45));
+        // Etiket sprite
+        const sp=makeTextSprite(label,{color:['#ff4444','#44ff44','#4488ff'][['x','y','z'].indexOf(label)],fontSize:26});
+        sp.position.copy(dir.clone().multiplyScalar(len+coneH+0.28));
         scene.add(sp);
     });
 }
