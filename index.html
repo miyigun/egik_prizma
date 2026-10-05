@@ -845,7 +845,11 @@ $('#resetColorsBtn').on('click',function(){
     netFaceColors={0:DEFAULT_HEX,1:DEFAULT_HEX,2:DEFAULT_HEX,3:DEFAULT_HEX,4:DEFAULT_HEX,5:DEFAULT_HEX};
     selectedColorIndex=null; $('.tb-color-swatch').removeClass('selected');
     $('#prismContainer').removeClass('paint-mode'); updateHint();
-    if($('#netContainer').hasClass('active')) buildAnimatedNet(currentNetMode);
+    if(typeof checkPaintingComplete==='function') checkPaintingComplete();
+    if($('#netContainer').hasClass('active')){
+        buildAnimatedNet(currentNetMode);
+        if(typeof checkNetPaintComplete==='function') checkNetPaintComplete();
+    }
 });
 function updateHint(){
     if(measureMode||angleMode){ $('#paintHint').hide(); }
@@ -1509,13 +1513,34 @@ function paintFaceAtClick(cx,cy){
     return false;
 }
 function checkPaintingComplete(){
-    const hexSet=new Set();
-    let allPainted=true;
-    faceMaterials.forEach(m=>{ const h='#'+m.color.getHexString(); if(h===DEFAULT_HEX) allPainted=false; hexSet.add(h); });
-    const allDiff=hexSet.size===6;
-    if(allPainted&&allDiff){ $('#paintDoneBtn').prop('disabled',false); $('#paintStatus').text('Tüm yüzeyler farklı renklerde boyandı!').css('color','var(--success-bg)'); }
-    else if(allPainted){ $('#paintStatus').text('Tüm yüzeyler boyandı. İlerleyebilirsiniz.').css('color','var(--success-bg)'); $('#paintDoneBtn').prop('disabled',false); }
-    else { const painted=faceMaterials.filter(m=>'#'+m.color.getHexString()!==DEFAULT_HEX).length; $('#paintStatus').text(`${painted}/6 yüzey boyandı`).css('color','var(--text-secondary)'); $('#paintDoneBtn').prop('disabled',true); }
+    const hexes=[];
+    faceMaterials.forEach(m=>{
+        const h='#'+m.color.getHexString();
+        if(h!==DEFAULT_HEX) hexes.push(h);
+    });
+    const paintedCount=hexes.length;
+    const hexSet=new Set(hexes);
+    const uniqueColorsCount=hexSet.size;
+    const allPainted=(paintedCount===6);
+    const allDiff=(uniqueColorsCount===6);
+
+    const $status=$('#paintStatus');
+    const $btn=$('#paintDoneBtn');
+
+    if(allPainted && allDiff){
+        $btn.prop('disabled',false);
+        $status.html('✓ Tüm yüzeyler farklı renklerde boyandı! İlerleyebilirsiniz.').css('color','var(--success-bg)');
+    } else if(allPainted && !allDiff){
+        $btn.prop('disabled',true);
+        $status.html(`⚠ Tüm yüzeyler boyandı fakat bazı yüzeylerde aynı renk kullanılmış (${uniqueColorsCount}/6 farklı renk). Lütfen her yüzeyi <strong>farklı bir renkle</strong> boyayınız!`).css('color','#ef4444');
+    } else {
+        $btn.prop('disabled',true);
+        if(paintedCount > 0 && uniqueColorsCount < paintedCount){
+            $status.html(`${paintedCount}/6 yüzey boyandı <span style="color:#f59e0b;">(${uniqueColorsCount} farklı renk kullanıldı — her yüzey farklı olmalı!)</span>`).css('color','var(--text-secondary)');
+        } else {
+            $status.text(`${paintedCount}/6 yüzey boyandı`).css('color','var(--text-secondary)');
+        }
+    }
 }
 
 /* Ölçüm modu — measurePanel ve angleOverlay aynı konumda (alttan sol) */
@@ -2325,16 +2350,33 @@ function buildMeasuredNet(){
 }
 
 function checkNetPaintComplete(){
-    const allPainted=Object.values(netFaceColors).every(h=>h!==DEFAULT_HEX);
-    const count=Object.values(netFaceColors).filter(h=>h!==DEFAULT_HEX).length;
-    if(allPainted){
-        $('#netPaintConvertBtn').prop('disabled',false).show();
-        $('#netPaintStatus').html('Tüm yüzeyler boyandı! <span style="color:var(--text-primary);font-weight:normal;">"Eğik Prizmaya Dönüştür" butonuna tıklayınız.</span>').css('color','var(--success-bg)');
-        $('#netPaintWarning').hide();
+    const hexes=Object.values(netFaceColors).filter(h=>h!==DEFAULT_HEX);
+    const count=hexes.length;
+    const hexSet=new Set(hexes);
+    const uniqueCount=hexSet.size;
+    const allPainted=(count===6);
+    const allDiff=(uniqueCount===6);
+
+    const $btn=$('#netPaintConvertBtn');
+    const $status=$('#netPaintStatus');
+    const $warn=$('#netPaintWarning');
+
+    if(allPainted && allDiff){
+        $btn.prop('disabled',false).show();
+        $status.html('✓ Tüm yüzeyler farklı renklerde boyandı! <span style="color:var(--text-primary);font-weight:normal;">"Eğik Prizmaya Dönüştür" butonuna tıklayınız.</span>').css('color','var(--success-bg)');
+        $warn.hide();
+    } else if(allPainted && !allDiff){
+        $btn.prop('disabled',true).show();
+        $status.html(`⚠ Tüm yüzeyler boyandı fakat bazı yüzeylerde aynı renk kullanılmış (${uniqueCount}/6 farklı renk). Lütfen her yüzeyi <strong>farklı bir renkle</strong> boyayınız!`).css('color','#ef4444');
+        $warn.hide();
     } else {
-        $('#netPaintStatus').text(`${count}/6 yüzey boyandı`).css('color','var(--text-secondary)');
-        $('#netPaintConvertBtn').prop('disabled',true);
-        $('#netPaintWarning').hide();
+        $btn.prop('disabled',true);
+        if(count > 0 && uniqueCount < count){
+            $status.html(`${count}/6 yüzey boyandı <span style="color:#f59e0b;">(${uniqueCount} farklı renk kullanıldı — her yüzey farklı olmalı!)</span>`).css('color','var(--text-secondary)');
+        } else {
+            $status.text(`${count}/6 yüzey boyandı`).css('color','var(--text-secondary)');
+        }
+        $warn.hide();
     }
 }
 
