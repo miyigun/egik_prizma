@@ -2747,7 +2747,7 @@ function loadApp1(){
             // Yüz seçimi: paintFaceAtClick yerine paralelkenar seçim modu
             window._app1FaceSelectMode=true;
             $(document).off('angleDone.app1').on('angleDone.app1',function(){
-                $('#angleStatus').html(`✓ Açı ölçüldü — <strong>Devam Et</strong> butonuna basabilirsiniz.`).css('color','var(--success-bg)');
+                $('#angleStatus').html(`✓ Açı ölçüldü — <strong>Devam Et</strong> butonuna tıklayabilirsiniz.`).css('color','var(--success-bg)');
                 $('#angleDoneBtn').prop('disabled',false);
             }); break;
         }
