@@ -110,6 +110,8 @@
         .action-button:hover:not(:disabled){background:var(--button-hover);transform:translateY(-2px);}
         .action-button:disabled{opacity:.4;cursor:not-allowed;}
         .action-button.full-width{display:block;width:100%;}
+        .action-button.skip-btn{background:var(--bg-tertiary);border:2px solid var(--border-color);color:var(--text-secondary);box-shadow:none;}
+        .action-button.skip-btn:hover{background:var(--button-hover);color:var(--button-text);box-shadow:0 0 10px var(--border-glow);transform:translateY(-2px);}
         .option-button{width:100%;padding:10px;background:var(--bg-tertiary);border:2px solid var(--border-color);border-radius:7px;color:var(--text-primary);font-size:14px;cursor:pointer;transition:all .3s;margin-bottom:8px;text-align:left;}
         .option-button:hover{background:var(--button-hover);color:var(--button-text);transform:translateX(4px);}
         .option-button.correct{background:var(--success-bg);color:#fff;animation:pulse .5s ease;}
@@ -623,7 +625,10 @@
             <button class="img-choice-btn" data-answer="Eğik Prizma">Eğik Prizma</button>
         </div>
         <div id="imgChoiceFeedback" style="min-height:36px;text-align:center;margin-bottom:6px;"></div>
-        <div class="dialog-btn-row"><button class="action-button" id="imgContinueBtn" disabled>Devam Et</button></div>
+        <div class="dialog-btn-row" style="gap:12px;">
+            <button class="action-button skip-btn" id="imgSkipBtn">Atla</button>
+            <button class="action-button" id="imgContinueBtn" disabled>Devam Et</button>
+        </div>
     </div>
 </div>
 <!-- KURİL ADALARI DİYALOGU -->
@@ -647,7 +652,8 @@
             <button class="img-choice-btn" data-answer="Dikdörtgenler Prizması" data-hint="Dikdörtgenler prizması dik bir prizmadır. Kayaların şekline daha dikkatli bak!">Dikdörtgenler Prizması</button>
         </div>
         <div id="kurilFeedback" style="min-height:36px;margin-bottom:8px;"></div>
-        <div class="dialog-btn-row">
+        <div class="dialog-btn-row" style="gap:12px;">
+            <button class="action-button skip-btn" id="kurilSkipBtn">Atla</button>
             <button class="action-button" id="kurilContinueBtn" style="display:none;">Devam Et</button>
         </div>
     </div>
@@ -675,7 +681,8 @@
         </div>
         <div id="app3HintBox" style="display:none;padding:12px 14px;border-radius:9px;font-size:.9em;line-height:1.65;margin-bottom:14px;
             background:var(--instruction-bg);border:2px solid var(--instruction-border);color:var(--text-primary);"></div>
-        <div style="text-align:center;">
+        <div class="dialog-btn-row" style="gap:12px;">
+            <button class="action-button skip-btn" id="app3IntroSkipBtn">Atla</button>
             <button class="action-button" id="app3IntroContinueBtn" disabled>Devam Et</button>
         </div>
     </div>
@@ -740,6 +747,9 @@
             </div>
         </div>
 
+        <div class="dialog-btn-row" style="margin-top:16px;">
+            <button class="action-button skip-btn" id="assessmentSkipBtn">Atla</button>
+        </div>
     </div>
 </div>
 
@@ -758,6 +768,7 @@
         <input type="text" id="assessmentVolAnswer" class="input-field" placeholder="Hacim sonucunu giriniz (cm³)..." style="margin-top:4px;" inputmode="decimal"/>
         <div id="assessmentVolFeedback" style="margin-top:10px;"></div>
         <div class="dialog-btn-row" style="margin-top:12px;gap:10px;">
+            <button class="action-button skip-btn" id="assessmentVolSkipBtn">Atla</button>
             <button class="action-button" id="assessmentVolCheckBtn">Kontrol Et</button>
             <button class="action-button" id="assessmentVolContinueBtn" style="display:none;">Devam Et</button>
         </div>
@@ -2565,7 +2576,7 @@ $(document).on('click','#imageChoicesContainer .img-choice-btn',function(){
     }
 });
 
-$('#imgContinueBtn').on('click',function(){
+$('#imgContinueBtn, #imgSkipBtn').on('click',function(){
     $('#imageQuestionDialog').fadeOut(200);
     $('#infoDialog').fadeOut(200,function(){ loadApplication('app1'); requestAnimationFrame(()=>requestAnimationFrame(()=>initMainThreeJS())); });
 });
@@ -2592,7 +2603,7 @@ $(document).on('click','#kurilChoicesContainer .img-choice-btn',function(){
         $('#kurilFeedback').html(`<div class="error-message">💡 İpucu: ${hint}</div>`);
     }
 });
-$('#kurilContinueBtn').on('click',function(){
+$('#kurilContinueBtn, #kurilSkipBtn').on('click',function(){
     $('#kurilDialog').fadeOut(300);
     loadApp2AfterKuril();
 });
@@ -2814,7 +2825,7 @@ function loadApp3(){
         }
     });
 
-    $('#app3IntroContinueBtn').off('click.app3').on('click.app3',function(){
+    $('#app3IntroContinueBtn, #app3IntroSkipBtn').off('click.app3').on('click.app3',function(){
         $('#app3IntroDialog').fadeOut(300);
         $(document).off('click.app3choice');
         renderApp3Step(0);
@@ -4655,7 +4666,7 @@ function setupAssessment(){
     });
 
     // ── Final Tamamlama ──
-    $('#assessmentFinalContinueBtn').off('click').on('click', function(){
+    $('#assessmentFinalContinueBtn, #assessmentSkipBtn').off('click').on('click', function(){
         $('#assessmentDialog').fadeOut(300, function(){
             renderApp2Step(6);
         });
@@ -4691,6 +4702,9 @@ function setupVolumeAssessment(){
     });
     $('#assessmentVolAnswer').off('keydown.volenter').on('keydown.volenter', function(e){ if(e.key === 'Enter') $('#assessmentVolCheckBtn').click(); });
     $('#assessmentVolContinueBtn').hide();
+    $('#assessmentVolSkipBtn').off('click').on('click', function(){
+        $('#assessmentDialogVolume').fadeOut(300, () => { renderApp3Step(5); });
+    });
 }
 
 /* ══ OLAY KÖPRÜSÜ ════════════════════════════════════════════════ */
