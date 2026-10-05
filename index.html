@@ -2023,16 +2023,16 @@ function buildAnimatedNet(mode,withMeasures){
              {x:cx-4, y:py+S/2, txt:`${LEN_BASE} cm`, anchor:'end'},
              {x:cx+S+4, y:py+S/2, txt:`${LEN_BASE} cm`, anchor:'start'},
          ] : []},
-        // DİKDÖRTGEN SOL (matIdx:5) — sol yan yüz (BCGF)
-        {matIdx:5, label:'DİKDÖRTGEN',
+        // DİKDÖRTGEN SOL (matIdx:4) — sol yan yüz (ADHE)
+        {matIdx:4, label:'DİKDÖRTGEN',
          pts:rect(cx-RH,py,RH,S), lx:cx-RH/2, ly:py+S/2,
          dx:RH, dy:0, delay:1,
          measures: withMeasures ? [
              {x:cx-RH/2, y:py-4, txt:`${LEN_LAT} cm`, anchor:'middle'},
              {x:cx-4, y:py+S/2, txt:`${LEN_BASE} cm`, anchor:'end'},
          ] : []},
-        // DİKDÖRTGEN SAĞ (matIdx:4) — sağ yan yüz (ADHE)
-        {matIdx:4, label:'DİKDÖRTGEN',
+        // DİKDÖRTGEN SAĞ (matIdx:5) — sağ yan yüz (BCGF)
+        {matIdx:5, label:'DİKDÖRTGEN',
          pts:rect(cx+S,py,RH,S), lx:cx+S+RH/2, ly:py+S/2,
          dx:-RH, dy:0, delay:1,
          measures: withMeasures ? [
@@ -2247,8 +2247,8 @@ function buildMeasuredNet(){
 
     const shapeDefs=[
         {matIdx:0, pts:rectPts(cx,py,S,S)},
-        {matIdx:5, pts:rectPts(cx-RH,py,RH,S)},
-        {matIdx:4, pts:rectPts(cx+S,py,RH,S)},
+        {matIdx:4, pts:rectPts(cx-RH,py,RH,S)},
+        {matIdx:5, pts:rectPts(cx+S,py,RH,S)},
         {matIdx:1, pts:rectPts(cx+S+RH,py,S,S)},
         {matIdx:2, pts:paraLeft(cx,py-PH_NET,S,PH_NET,sk)},
         {matIdx:3, pts:paraRight(cx-sk,py+S,S,PH_NET,sk)},
@@ -2261,7 +2261,7 @@ function buildMeasuredNet(){
     const measureLabels=[
         // Kare (matIdx:0): sol kenar dışı
         {x:cx-6, y:py+S/2, txt:LEN_BASE, anchor:'end'},
-        // Sol dikdörtgen (matIdx:5): üst kenar dışı (üstte) + sol kenar dışı (solda)
+        // Sol dikdörtgen (matIdx:4): üst kenar dışı (üstte) + sol kenar dışı (solda)
         {x:cx-RH/2, y:py-8, txt:LEN_LAT, anchor:'middle'},
         {x:cx-RH-6, y:py+S/2, txt:LEN_BASE, anchor:'end'},
         // Üst paralelkenar (matIdx:2): üst kenar dışı (üstte)
@@ -2385,7 +2385,11 @@ $('#netPaintConvertBtn').on('click',function(){
 
     // Boyaları 3D prizmaya aktar
     Object.entries(netFaceColors).forEach(([mi,hex])=>{
-        if(faceMaterials[mi]){ faceMaterials[mi].color.set(hex); faceMaterials[mi].opacity=hex===DEFAULT_HEX?0.72:0.88; }
+        if(faceMaterials[mi]){
+            faceMaterials[mi].color.set(hex);
+            faceMaterials[mi].opacity=hex===DEFAULT_HEX?0.72:0.88;
+            faceMaterials[mi].needsUpdate=true;
+        }
     });
 
     // SVG açınımındaki yüzleri merkeze doğru toplayarak kapat
@@ -2415,6 +2419,10 @@ $('#netPaintConvertBtn').on('click',function(){
 
         // Animasyon bittikten sonra 3D'ye geç
         setTimeout(()=>{
+            // Araç çubuğu görünüm butonlarını güncelle
+            $('#viewNetBtn').removeClass('active');
+            $('#view3dBtn').addClass('active');
+
             // netContainer'ı gizle, prismContainer'ı göster
             $('#netContainer').removeClass('active');
             const pc=$('#prismContainer');
