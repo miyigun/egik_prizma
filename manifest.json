@@ -1,0 +1,40 @@
+{
+  "format": "matbis-materyal",
+  "surum": "1.0",
+
+  "kimlik": {
+    "id": "MAT-011",
+    "baslik": "Eğik Prizma",
+    "uretici": "OGM Matematik Ekibi",
+    "materyal_surumu": "1.3.4",
+    "tarih": "2026-09-10"
+  },
+
+  "matematik": {
+    "durum": "Dikdörtgen tabanlı eğik prizmada yanal ayrıt uzunluğu ile cisim yüksekliği arasındaki trigonometrik ilişki, yanal yüzeylerin paralelkenar yapısı, açınım ve Cavalieri ilkesi ile hacim hesabı.",
+    "degiskenler": ["taban kenar uzunlukları", "yanal ayrıt uzunluğu", "eğim açısı"],
+    "cikti": "yanal alan, toplam yüzey alanı, cisim yüksekliği, hacim"
+  },
+
+  "teknik": {
+    "giris": "index.html",
+    "onizleme_tipi": "sinirli_etkilesim",
+    "onizleme_kipi": "?onizleme=1",
+    "onizleme_odagi": "eğik prizmanın 3D yapısı ve açınımı",
+    "dis_baglanti": [],
+    "tema": "gunduz-varsayilan_gece-kullanici-secimi",
+    "klavye": true,
+    "hareket_azaltma": true,
+    "responsive": true,
+    "paket_ayrismasi": true,
+    "kullanim_rehberi": true
+  },
+
+  "program": {
+    "program_surumu": "TYMM-2026",
+    "sinif_duzeyi": [12],
+    "ogrenme_ciktisi": ["MAT.12.3.1", "MAT.12.3.3"],
+    "beceri_etiketleri": ["MAB3", "KB2.6"],
+    "surec_bilesenleri": [1, 2, 3]
+  }
+}
