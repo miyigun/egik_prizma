@@ -4,16 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eğik Prizma Materyali</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="lib/jquery-3.6.0.min.js"></script>
     <script>
         window.MathJax = {
-            tex:{ inlineMath:[['$','$'],['\\(','\\)']], displayMath:[['$$','$$'],['\\[','\\]']] },
-            svg:{ fontCache:'global' }
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+            svg: { fontCache: 'global' }
         };
     </script>
+    <script id="MathJax-script" async src="lib/tex-mml-svg.js"></script>
+    <script src="lib/three.min.js"></script>
     <style>
         :root[data-theme="dark"]{
             --bg-primary:#0a0e27;--bg-secondary:#141b3d;--bg-tertiary:#1a2347;
@@ -30,6 +29,7 @@
             --net-bg:radial-gradient(circle,#1a2347 0%,#0a0e27 100%);
             --net-stroke:#ffffff;--net-text:#e0e6ff;
             --measure-bg:rgba(10,14,39,.9);
+            --prism-bg:radial-gradient(circle,#1a2347 0%,#0a0e27 100%);
         }
         :root[data-theme="light"]{
             --bg-primary:#f0f4f8;--bg-secondary:#fff;--bg-tertiary:#e8eef5;
@@ -46,6 +46,7 @@
             --net-bg:radial-gradient(circle,#e8eef5 0%,#f0f4f8 100%);
             --net-stroke:#334155;--net-text:#1e293b;
             --measure-bg:rgba(255,255,255,.92);
+            --prism-bg:#ffffff;
         }
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--bg-primary);color:var(--text-primary);overflow-x:hidden;transition:background .3s,color .3s;}
@@ -130,7 +131,7 @@
         .dialog-content li{margin-bottom:8px;line-height:1.6;font-size:.95em;}
         .dialog-content strong{color:var(--text-accent);}
         .dialog-btn-row{display:flex;justify-content:center;margin-top:8px;}
-        #prismContainer{flex:1;width:100%;position:relative;background:radial-gradient(circle,#1a2347 0%,#0a0e27 100%);overflow:hidden;user-select:none;min-height:0;cursor:grab;will-change:opacity,transform;}
+        #prismContainer{flex:1;width:100%;position:relative;background:var(--prism-bg,#ffffff);overflow:hidden;user-select:none;min-height:0;cursor:grab;will-change:opacity,transform;}
         #prismContainer.dragging{cursor:grabbing;}
         #prismContainer.measure-mode{cursor:crosshair;}
         #prismContainer.angle-mode{cursor:crosshair;}
@@ -278,10 +279,7 @@
         .a4-cut-overlay.cut-top{top:0;background:rgba(255,255,255,.0);}
         .a4-cut-overlay.cut-done{background:rgba(16,185,129,.08);}
 
-        /* Makas toolbar butonu — sadece app3 step3'te görünür */
-        #scissorBtn{display:none;}
 
-        #pencilBtn{display:none;}
         @keyframes pencilPulse{
             0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0);background:var(--bg-tertiary);}
             50%{box-shadow:0 0 0 6px rgba(239,68,68,.35);background:rgba(239,68,68,.18);}
@@ -303,12 +301,56 @@
         .scissor-active svg{ opacity:1; filter:none; }
         .scissor-active:hover svg{ filter:drop-shadow(0 0 5px #10b981); }
 
+        .mobile-header { display: none; }
+
         @media(max-width:900px){.main-content{padding-right:54px;}.left-panel{width:280px;min-width:240px;}}
         @media(max-width:640px){
-            .app-container{overflow:visible;height:auto;min-height:100vh;}
+            .mobile-header {
+                display: flex;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 48px;
+                background: var(--toolbar-bg);
+                border-bottom: 1.5px solid var(--border-color);
+                box-shadow: 0 2px 14px var(--border-glow);
+                z-index: 590;
+                align-items: center;
+                padding: 0 14px;
+                backdrop-filter: blur(12px);
+            }
+            .mobile-header-title {
+                font-size: 15px;
+                font-weight: 700;
+                color: var(--text-accent);
+                letter-spacing: .5px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .floating-controls {
+                position: fixed;
+                top: 6px;
+                right: 10px;
+                gap: 8px;
+                z-index: 600;
+            }
+            .floating-controls .icon-button {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+            .app-container{overflow:visible;height:auto;min-height:100vh;padding-top:56px!important;}
             .main-content{flex-direction:column;padding-right:0;padding-bottom:60px;overflow:visible;}
             .left-panel{width:100%;max-width:100%;max-height:50vh;}
+            .tab-container{gap:6px;}
+            .tab-button{min-width:0;padding:8px 6px;font-size:12px;}
             .right-panel{min-height:0;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto;}
+            #prismContainer{min-height:330px;height:48vh;border-radius:12px;}
+            .dialog-overlay{padding:10px;}
+            .dialog-content{padding:18px 14px;border-radius:14px;max-height:88vh;}
+            .dialog-content h2{font-size:1.3em;margin-bottom:12px;}
             .side-toolbar{
                 top:auto;
                 bottom:8px;
@@ -316,26 +358,73 @@
                 flex-direction:row;
                 flex-wrap:nowrap;
                 border-radius:18px;
-                padding:6px 10px;
+                padding:6px 24px 8px 10px;
                 overflow-x:auto;
                 overflow-y:hidden;
-                max-width:calc(100vw - 80px);
+                max-width:calc(100vw - 76px);
                 -webkit-overflow-scrolling:touch;
-                scrollbar-width:none;
-                -ms-overflow-style:none;
+                scrollbar-width:thin;
+                scrollbar-color:var(--border-color) rgba(0,0,0,.08);
                 opacity:0;
                 pointer-events:none;
                 transform:translateX(50%) translateY(20px);
                 transition:opacity .3s ease, transform .3s ease;
+                mask-image:linear-gradient(to right, black calc(100% - 32px), transparent 100%);
+                -webkit-mask-image:linear-gradient(to right, black calc(100% - 32px), transparent 100%);
             }
             .side-toolbar.tb-visible{
                 opacity:1;
                 pointer-events:auto;
                 transform:translateX(50%) translateY(0);
             }
-            .side-toolbar::-webkit-scrollbar{display:none;}
+            .side-toolbar::-webkit-scrollbar{
+                display:block !important;
+                height:3.5px;
+            }
+            .side-toolbar::-webkit-scrollbar-track{
+                background:rgba(0,0,0,.06);
+                border-radius:10px;
+                margin:0 14px;
+            }
+            .side-toolbar::-webkit-scrollbar-thumb{
+                background:var(--border-color);
+                border-radius:10px;
+                box-shadow:0 0 6px var(--border-glow);
+            }
             .side-toolbar .tb-divider{width:2px;height:28px;margin:0 2px;}
             .tb-btn::after{right:auto;top:auto;bottom:48px;left:50%;transform:translateX(-50%);}
+            .tb-scroll-hint {
+                position: fixed;
+                bottom: 12px;
+                right: 6px;
+                z-index: 600;
+                width: 30px;
+                height: 42px;
+                border-radius: 12px;
+                background: var(--button-bg);
+                border: 2px solid var(--border-color);
+                box-shadow: 0 2px 14px var(--border-glow);
+                color: #fff;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                opacity: 0;
+                pointer-events: none;
+                transform: scale(0.8);
+                transition: opacity .25s ease, transform .25s ease, background .2s;
+            }
+            .tb-scroll-hint.visible {
+                display: flex;
+                opacity: 1;
+                pointer-events: auto;
+                transform: scale(1);
+                animation: tbHintPulse 1.6s ease-in-out infinite;
+            }
+            @keyframes tbHintPulse {
+                0%, 100% { transform: scale(1) translateX(0); box-shadow: 0 2px 12px var(--border-glow); }
+                50% { transform: scale(1.08) translateX(3px); box-shadow: 0 2px 20px var(--border-glow); }
+            }
             .palette-popup{bottom:60px;right:8px;top:auto!important;left:auto!important;}
             #measurePanel,#angleOverlay{font-size:11px;min-width:130px;padding:6px 8px;}
             .action-button{padding:8px 14px;font-size:13px;}
@@ -343,7 +432,7 @@
             .app3-choice-btn{font-size:.88em;padding:10px 12px;}
             .a4-paper{width:min(260px,88%);}
             .net-svg-box svg{max-height:none;width:100%;height:auto;}
-            #netContainer{overflow:visible;align-items:flex-start;justify-content:flex-start;padding:8px;height:auto;min-height:0;flex-shrink:0;}
+            #netContainer{overflow:visible;align-items:flex-start;justify-content:flex-start;padding:8px;height:auto;min-height:320px;flex-shrink:0;}
             #netContainer.active{display:flex;flex-direction:column;height:auto;flex-shrink:0;}
             .net-wrapper{flex-shrink:0;}
             #tbToggleBtn{
@@ -368,6 +457,14 @@
                 transform:rotate(45deg);
             }
         }
+        @media (max-height: 500px) and (orientation: landscape) {
+            .app-container { padding: 6px; gap: 6px; }
+            .main-content { gap: 6px; }
+            .floating-controls { top: 8px; right: 8px; }
+            .floating-controls .icon-button { width: 34px; height: 34px; font-size: 15px; }
+            .left-panel { padding: 8px; }
+            .dialog-content { max-height: 92vh; padding: 14px 16px; }
+        }
         @media(max-width:400px){
             .a4-paper{width:min(200px,94%);}
         }
@@ -378,6 +475,30 @@
         @media(max-width:500px){.img-choice-btn{font-size:.85em;padding:9px 10px;}}
         .MathJax{color:var(--text-primary)!important;}
         mjx-container{color:var(--text-primary)!important;}
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+        /* 3D Canvas ve Kontroller Odak Göstergesi (M4 / MS-08) */
+        #prismContainer:focus-visible, #threejs-canvas-wrapper:focus-visible, .icon-button:focus-visible, .tab-button:focus-visible, .action-button:focus-visible {
+            outline: 2.5px solid var(--border-color) !important;
+            outline-offset: 2px !important;
+        }
+        /* Önizleme Kipi Vitrin Katmanı (?onizleme=1) (M3 / MS-05) */
+        body.preview-mode { overflow: hidden !important; }
+        body.preview-mode .mobile-header,
+        body.preview-mode .left-panel,
+        body.preview-mode .side-toolbar,
+        body.preview-mode #tbToggleBtn,
+        body.preview-mode #tbScrollHint,
+        body.preview-mode .floating-controls { display: none !important; }
+        body.preview-mode .main-content { padding: 0 !important; width: 100% !important; height: 100% !important; gap: 0 !important; }
+        body.preview-mode .right-panel { width: 100% !important; height: 100% !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; }
+        body.preview-mode #paintHint { bottom: 12px; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -386,8 +507,12 @@
     <svg class="bg-shape" width="110" height="110" viewBox="0 0 120 120"><polygon points="60,10 110,110 10,110" fill="currentColor" style="color:var(--border-color)"/></svg>
     <svg class="bg-shape" width="70" height="70" viewBox="0 0 80 80"><circle cx="40" cy="40" r="35" fill="currentColor" style="color:var(--border-color)"/></svg>
 </div>
+<div class="mobile-header">
+    <span class="mobile-header-title">Eğik Prizma</span>
+</div>
 <div class="floating-controls">
-    <button class="icon-button" id="themeToggle" title="Tema Değiştir"><span id="themeIcon">☀</span></button>
+    <button class="icon-button" id="helpBtn" title="Yönerge ve Bilgi" aria-label="Yönerge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></button>
+    <button class="icon-button" id="themeToggle" title="Tema Değiştir"><span id="themeIcon">🌙</span></button>
 </div>
 <div class="app-container">
     <div class="main-content">
@@ -454,7 +579,7 @@
     <button class="tb-btn" id="measureBtn" data-tip="Ayrıt Ölç">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="20" height="8" rx="1"/><line x1="6" y1="8" x2="6" y2="13"/><line x1="10" y1="8" x2="10" y2="11"/><line x1="14" y1="8" x2="14" y2="13"/><line x1="18" y1="8" x2="18" y2="11"/></svg>
     </button>
-    <button class="tb-btn" id="angleBtn" data-tip="Açı Ölç">
+    <button class="tb-btn" id="angleBtn" data-tip="Açıölçer">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 20 L3 4"/><path d="M3 20 L20 20"/><path d="M3 20 L17 6"/><path d="M10 20 A7 7 0 0 1 3 13" fill="none"/></svg>
     </button>
     <div class="tb-divider"></div>
@@ -462,21 +587,11 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/><circle cx="8.5" cy="14.5" r="1.5" fill="currentColor"/><circle cx="6" cy="10" r="1.5" fill="currentColor"/><circle cx="10" cy="7" r="1.5" fill="currentColor"/><circle cx="15" cy="7" r="1.5" fill="currentColor"/></svg>
     </button>
     <button class="tb-btn" id="resetColorsBtn" data-tip="Boyaları Sıfırla" style="font-size:15px;">↺</button>
-    <div class="tb-divider" id="pencilDivider" style="display:none;"></div>
-    <button class="tb-btn" id="pencilBtn" data-tip="Çizgi Çiz" style="display:none;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
-        </svg>
-    </button>
-    <button class="tb-btn" id="scissorBtn" data-tip="Kağıdı Kes" style="display:none;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>
-            <line x1="20" y1="4" x2="8.12" y2="15.88"/>
-            <line x1="14.47" y1="14.48" x2="20" y2="20"/>
-            <line x1="8.12" y1="8.12" x2="12" y2="12"/>
-        </svg>
-    </button>
 </div>
+<!-- Sağ kaydırma ipucu butonu (mobilde araç çubuğu açıkken görünür) -->
+<button id="tbScrollHint" class="tb-scroll-hint" style="display:none;" aria-label="Diğer araçları gör" title="Diğer araçlar için kaydırın">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+</button>
 <div class="palette-popup" id="palettePopup">
     <div class="palette-popup-label">🎨 Renk Seç</div>
 </div>
@@ -528,7 +643,7 @@
         <div id="kurilChoicesContainer" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:14px;">
             <button class="img-choice-btn" data-answer="Küre" data-hint="Küre, her noktası merkeze eşit uzaklıkta olan kapalı bir yüzeydir. Kayaların şekline daha dikkatli bak!">Küre</button>
             <button class="img-choice-btn" data-answer="Eğik Prizma">Eğik Prizma</button>
-            <button class="img-choice-btn" data-answer="Dik Prizma" data-hint="Dik prizmanın yanal kenarları tabana dik olur. Kayaların eğik duruşuna dikkat et!">Dik Prizma</button>
+            <button class="img-choice-btn" data-answer="Dik Prizma" data-hint="Dik prizmanın yanal ayrıtları tabana dik olur. Kayaların eğik duruşuna dikkat et!">Dik Prizma</button>
             <button class="img-choice-btn" data-answer="Dikdörtgenler Prizması" data-hint="Dikdörtgenler prizması dik bir prizmadır. Kayaların şekline daha dikkatli bak!">Dikdörtgenler Prizması</button>
         </div>
         <div id="kurilFeedback" style="min-height:36px;margin-bottom:8px;"></div>
@@ -556,7 +671,7 @@
             <button class="app3-choice-btn" data-correct="false" data-hint="Küre, her noktası merkeze eşit uzaklıkta olan kapalı bir yüzeydir. Sundurma parçaları düz yüzeylerden oluşur.">Küre</button>
             <button class="app3-choice-btn" data-correct="true">Eğik Prizma</button>
             <button class="app3-choice-btn" data-correct="false" data-hint="Küp, tüm yüzleri eşit kare olan özel bir dik prizmadır. Sundurma parçaları eğik kesilir.">Küp</button>
-            <button class="app3-choice-btn" data-correct="false" data-hint="Dikdörtgenler prizması dik bir prizmadır; yanal kenarları tabana diktir. Sundurma parçalarının kenarları ise eğik kesilmiştir.">Dikdörtgenler Prizması</button>
+            <button class="app3-choice-btn" data-correct="false" data-hint="Dikdörtgenler prizması dik bir prizmadır; yanal ayrıtları tabana diktir. Sundurma parçalarının ayrıtları ise eğik kesilmiştir.">Dikdörtgenler Prizması</button>
         </div>
         <div id="app3HintBox" style="display:none;padding:12px 14px;border-radius:9px;font-size:.9em;line-height:1.65;margin-bottom:14px;
             background:var(--instruction-bg);border:2px solid var(--instruction-border);color:var(--text-primary);"></div>
@@ -565,24 +680,87 @@
         </div>
     </div>
 </div>
-<!-- ÖLÇME DEĞERLENDİRME SORU DİYALOGU -->
+<!-- ÖLÇME DEĞERLENDİRME SORU DİYALOGU 1: YÜZEY ALANI -->
 <div class="dialog-overlay" id="assessmentDialog" style="display:none;">
-    <div class="dialog-content scrollable" style="max-width:640px;">
-        <h2>Ölçme ve Değerlendirme</h2>
-        <h3 style="color:var(--text-accent);margin-bottom:12px;">Soru</h3>
-        <p style="font-size:.95em;line-height:1.7;margin-bottom:14px; font-weight: bold;">
-            Aşağıda bazı ölçüleri verilen eğik prizma ile aynı tabana ve yüksekliğe sahip olan dik prizmanın yüzey alanını hesaplayınız.
-        </p>
-        <div style="display:flex;justify-content:center;margin-bottom:20px;">
+    <div class="dialog-content scrollable" style="max-width:660px;">
+        <h2>Ölçme ve Değerlendirme: Yüzey Alanı</h2>
+        <div style="display:flex;justify-content:center;margin:10px 0 16px;">
             <img src="images/uygulama_2_soru.png" alt="Soru şekli" style="max-width:100%;border-radius:10px;">
         </div>
-        <input type="text" id="assessmentAnswer" class="input-field" placeholder="Sonucu giriniz..." style="margin-top:4px;" inputmode="decimal"/>
-        <div id="assessmentFeedback" style="margin-top:10px;"></div>
-        <div class="dialog-btn-row" style="margin-top:12px;gap:10px;">
-            <button class="action-button" id="assessmentCheckBtn">Kontrol Et</button>
-            <button class="action-button" id="assessmentContinueBtn" style="display:none;">Devam Et</button>
+
+        <!-- 1. AŞAMA: EĞİK PRİZMA -->
+        <div id="assessmentStage1">
+            <h3 style="color:var(--text-accent);margin-bottom:8px;">1. Aşama: Eğik Prizmanın Yüzey Alanı</h3>
+            <p style="font-size:.95em;line-height:1.6;margin-bottom:10px;font-weight:600;">
+                Görselde solda verilen eğik prizmanın <strong>toplam yüzey alanını</strong> hesaplayınız.
+            </p>
+            <div style="background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:0.88em;color:var(--text-secondary);line-height:1.5;">
+                <strong>Bilgi:</strong> $\sin 30° = 0,5$. Paralelkenar yüzeylerin yüksekliği $h = 10 \times \sin 30° = 5\text{ cm}$'dir.
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                <input type="text" id="assessmentAnswer1" class="input-field" placeholder="Eğik prizma alanı (cm²)..." style="flex:1;min-width:160px;margin-top:0;" inputmode="decimal"/>
+                <button class="action-button" id="assessmentCheckBtn1" style="white-space:nowrap;margin-top:0;">Kontrol Et</button>
+            </div>
+            <div id="assessmentFeedback1" style="margin-top:10px;"></div>
+            <div style="text-align:right;margin-top:12px;display:none;" id="assessmentStage1NextArea">
+                <button class="action-button" id="assessmentStage1NextBtn">2. Aşamaya Geç →</button>
+            </div>
         </div>
 
+        <!-- 2. AŞAMA: DİK PRİZMA -->
+        <div id="assessmentStage2" style="display:none;margin-top:16px;border-top:1px dashed var(--border-color);padding-top:16px;">
+            <h3 style="color:var(--text-accent);margin-bottom:8px;">2. Aşama: Dik Prizmanın Yüzey Alanı</h3>
+            <p style="font-size:.95em;line-height:1.6;margin-bottom:10px;font-weight:600;">
+                Şimdi de görselde sağda verilen, eğik prizmayla <strong>aynı tabana ($4\times4\text{ cm}$) ve aynı yüksekliğe ($h = 5\text{ cm}$)</strong> sahip dik prizmanın toplam yüzey alanını hesaplayınız.
+            </p>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                <input type="text" id="assessmentAnswer2" class="input-field" placeholder="Dik prizma alanı (cm²)..." style="flex:1;min-width:160px;margin-top:0;" inputmode="decimal"/>
+                <button class="action-button" id="assessmentCheckBtn2" style="white-space:nowrap;margin-top:0;">Kontrol Et</button>
+            </div>
+            <div id="assessmentFeedback2" style="margin-top:10px;"></div>
+            <div style="text-align:right;margin-top:12px;display:none;" id="assessmentStage2NextArea">
+                <button class="action-button" id="assessmentStage2NextBtn">Kıyaslamaya Geç →</button>
+            </div>
+        </div>
+
+        <!-- 3. AŞAMA: KIYASLAMA VE ÇIKARIM -->
+        <div id="assessmentStage3" style="display:none;margin-top:16px;border-top:1px dashed var(--border-color);padding-top:16px;">
+            <h3 style="color:var(--text-accent);margin-bottom:8px;">3. Aşama: Kıyaslama ve Matematiksel Çıkarım</h3>
+            <p style="font-size:.95em;line-height:1.6;margin-bottom:12px;font-weight:600;">
+                Aynı taban alanına ve aynı yüksekliğe sahip bu iki prizmanın toplam yüzey alanları ($A_{\text{eğik}}$ ve $A_{\text{dik}}$) arasındaki ilişki nasıldır?
+            </p>
+            <div style="display:flex;flex-direction:column;gap:8px;" id="assessmentCmpBtns">
+                <button class="app3-choice-btn assessment-cmp-btn" data-cmp="egikbig">A<sub>eğik</sub> &gt; A<sub>dik</sub> &nbsp;(152 cm² &gt; 112 cm²)</button>
+                <button class="app3-choice-btn assessment-cmp-btn" data-cmp="equal">A<sub>eğik</sub> = A<sub>dik</sub> &nbsp;(152 cm² = 112 cm²)</button>
+                <button class="app3-choice-btn assessment-cmp-btn" data-cmp="dikbig">A<sub>eğik</sub> &lt; A<sub>dik</sub> &nbsp;(152 cm² &lt; 112 cm²)</button>
+            </div>
+            <div id="assessmentFeedback3" style="margin-top:12px;"></div>
+            <div style="text-align:center;margin-top:14px;display:none;" id="assessmentFinalContinueArea">
+                <button class="action-button" id="assessmentFinalContinueBtn">Uygulama 2'yi Tamamla</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ÖLÇME DEĞERLENDİRME SORU DİYALOGU 2: HACİM -->
+<div class="dialog-overlay" id="assessmentDialogVolume" style="display:none;">
+    <div class="dialog-content scrollable" style="max-width:640px;">
+        <h2>Ölçme ve Değerlendirme: Hacim</h2>
+        <h3 style="color:var(--text-accent);margin-bottom:12px;">Soru</h3>
+        <p style="font-size:.95em;line-height:1.7;margin-bottom:14px; font-weight: bold;">
+            Taban ayrıtı 4 cm olan kare tabanlı, yanal ayrıt uzunluğu 10 cm ve taban düzlemiyle 30° açı yapan bir eğik prizma verilmiştir. Bu eğik prizma ile aynı tabana ve aynı yüksekliğe sahip dik prizmanın hacmini hesaplayınız.
+        </p>
+        <div style="background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;padding:12px;margin-bottom:16px;font-size:0.9em;color:var(--text-secondary);line-height:1.6;">
+            <strong>Bilgi:</strong> sin 30° = 0,5<br>
+            <strong>Hacim Bağıntısı:</strong> V = Taban Alanı &times; Yükseklik (Cavalieri İlkesi)
+        </div>
+        <input type="text" id="assessmentVolAnswer" class="input-field" placeholder="Hacim sonucunu giriniz (cm³)..." style="margin-top:4px;" inputmode="decimal"/>
+        <div id="assessmentVolFeedback" style="margin-top:10px;"></div>
+        <div class="dialog-btn-row" style="margin-top:12px;gap:10px;">
+            <button class="action-button" id="assessmentVolCheckBtn">Kontrol Et</button>
+            <button class="action-button" id="assessmentVolContinueBtn" style="display:none;">Devam Et</button>
+        </div>
     </div>
 </div>
 
@@ -590,12 +768,18 @@
 $(document).ready(function(){
 
 /* ══ TEMA ═══════════════════════════════════════════════════════ */
-let currentTheme='dark';
+let currentTheme='light';
 $('html').attr('data-theme',currentTheme);
 $('#themeToggle').on('click',function(){
     currentTheme=currentTheme==='dark'?'light':'dark';
     $('html').attr('data-theme',currentTheme);
     $('#themeIcon').text(currentTheme==='dark'?'☀':'🌙');
+    if(typeof updatePrismGrid==='function') updatePrismGrid();
+    if(typeof eahGroup!=='undefined'&&eahGroup&&eahGroup.parent){
+        const wasVis=eahGroup.visible;
+        buildEAHOverlay();
+        if(eahGroup) eahGroup.visible=wasVis;
+    }
 });
 
 function fmtNum(n,d=1){ return n.toFixed(d).replace('.',','); }
@@ -610,7 +794,6 @@ const COLORS=[
     {name:'Mor',    hex:'#a855f7',three:0xa855f7},
     {name:'Pembe',  hex:'#ec4899',three:0xec4899},
     {name:'Cyan',   hex:'#06b6d4',three:0x06b6d4},
-    {name:'Beyaz',  hex:'#f8fafc',three:0xf8fafc},
     {name:'Gri',    hex:'#6b7280',three:0x6b7280},
     {name:'Koyu',   hex:'#1e1e2e',three:0x1e1e2e},
 ];
@@ -659,8 +842,10 @@ $(document).on('click','.tb-color-swatch',function(){
 });
 $('#resetColorsBtn').on('click',function(){
     faceMaterials.forEach(m=>{ m.color.setHex(DEFAULT_COLOR); m.opacity=0.72; });
+    netFaceColors={0:DEFAULT_HEX,1:DEFAULT_HEX,2:DEFAULT_HEX,3:DEFAULT_HEX,4:DEFAULT_HEX,5:DEFAULT_HEX};
     selectedColorIndex=null; $('.tb-color-swatch').removeClass('selected');
     $('#prismContainer').removeClass('paint-mode'); updateHint();
+    if($('#netContainer').hasClass('active')) buildAnimatedNet(currentNetMode);
 });
 function updateHint(){
     if(measureMode||angleMode){ $('#paintHint').hide(); }
@@ -840,13 +1025,13 @@ function resetToolbar(){
 
 function addAxisArrows(scene){
     const axes=[
-        {dir:new THREE.Vector3(-1,0,0), color:0xff4444, label:'x'},
-        {dir:new THREE.Vector3(0,1,0), color:0x44ff44, label:'y'},
-        {dir:new THREE.Vector3(0,0,-1), color:0x4488ff, label:'z'},
+        {dir:new THREE.Vector3(-1,0,0), color:0xff4444, colorHex:'#ff4444', label:'y'},
+        {dir:new THREE.Vector3(0,1,0), color:0x44ff44, colorHex:'#44ff44', label:'z'},
+        {dir:new THREE.Vector3(0,0,-1), color:0x4488ff, colorHex:'#4488ff', label:'x'},
     ];
     const origin=new THREE.Vector3(0,0,0);
     const len=4.5, coneH=0.28, coneR=0.07;
-    axes.forEach(({dir,color,label})=>{
+    axes.forEach(({dir,color,colorHex,label})=>{
         // Gövde çizgisi
         const pts=[origin.clone(), dir.clone().multiplyScalar(len)];
         const line=new THREE.Line(
@@ -862,11 +1047,21 @@ function addAxisArrows(scene){
         // Koniyi eksen yönüne döndür
         cone.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir);
         scene.add(cone);
-        // Etiket sprite
-        const sp=makeTextSprite(label,{color:['#ff4444','#44ff44','#4488ff'][['x','y','z'].indexOf(label)],fontSize:26});
+        // Etiket sprite (MEB: Kırmızı=y, Yeşil=z, Mavi=x)
+        const sp=makeTextSprite(label,{color:colorHex,fontSize:26});
         sp.position.copy(dir.clone().multiplyScalar(len+coneH+0.28));
         scene.add(sp);
     });
+}
+
+let mainGridHelper=null;
+function updatePrismGrid(){
+    if(!mainScene) return;
+    if(mainGridHelper) mainScene.remove(mainGridHelper);
+    const isDark=(currentTheme==='dark');
+    mainGridHelper=new THREE.GridHelper(12,24,isDark?0x00d4ff:0x0ea5e9,isDark?0x1a2347:0xd8e2ed);
+    mainGridHelper.position.y=-0.01;
+    mainScene.add(mainGridHelper);
 }
 
 function buildPrismScene(){
@@ -874,7 +1069,7 @@ function buildPrismScene(){
     mainScene.add(new THREE.AmbientLight(0xffffff,.85));
     const dl1=new THREE.DirectionalLight(0xffffff,.95); dl1.position.set(5,10,6); mainScene.add(dl1);
     const dl2=new THREE.DirectionalLight(0xaaddff,.4); dl2.position.set(-5,4,-6); mainScene.add(dl2);
-    const grid=new THREE.GridHelper(12,24,0x00d4ff,0x1a2347); grid.position.y=-0.01; mainScene.add(grid);
+    updatePrismGrid();
     addAxisArrows(mainScene);
     const geo=buildPrismBufferGeometry();
     faceMaterials=[];
@@ -970,7 +1165,8 @@ function showRightPanelRightPrism(){
     });
 
     // Dik açı işaretleri: A,B,C,D köşelerinde taban-yanal ayrıt dik
-    const rightAngleMat=new THREE.LineBasicMaterial({color:0xffffff,linewidth:2});
+    const rightAngleColor = (currentTheme === 'dark') ? 0xffffff : 0x1e293b;
+    const rightAngleMat=new THREE.LineBasicMaterial({color:rightAngleColor,linewidth:2});
     const sqSize=0.09;
     const rightAngleMarkers=[];
     [[rA,rB,rE],[rB,rA,rF],[rD,rA,rH],[rC,rD,rG]].forEach(([corner,dir1v,dir2v])=>{
@@ -1025,17 +1221,18 @@ function buildEAHOverlay(){
     const proj_len = AE_vec.dot(AB_dir);
     const H_pt = A.clone().addScaledVector(AB_dir, proj_len);
 
-    // --- EA çizgisi (beyaz) ---
-    const lineMatW = new THREE.LineBasicMaterial({color:0xffffff, linewidth:3});
+    // --- EA çizgisi ---
+    const overlayCol = (currentTheme === 'dark') ? 0xffffff : 0x1e293b;
+    const lineMatW = new THREE.LineBasicMaterial({color:overlayCol, linewidth:3});
     const gEA = new THREE.BufferGeometry().setFromPoints([E.clone(), A.clone()]);
     eahGroup.add(new THREE.Line(gEA, lineMatW));
 
-    // --- AH çizgisi (beyaz) ---
+    // --- AH çizgisi ---
     const gAH = new THREE.BufferGeometry().setFromPoints([A.clone(), H_pt.clone()]);
     eahGroup.add(new THREE.Line(gAH, lineMatW));
 
-    // --- EH dikme çizgisi (beyaz, kesik) ---
-    const dashMat = new THREE.LineDashedMaterial({color:0xffffff, linewidth:2, dashSize:0.08, gapSize:0.05});
+    // --- EH dikme çizgisi (kesik) ---
+    const dashMat = new THREE.LineDashedMaterial({color:overlayCol, linewidth:2, dashSize:0.08, gapSize:0.05});
     const gEH = new THREE.BufferGeometry().setFromPoints([E.clone(), H_pt.clone()]);
     const ehLine = new THREE.Line(gEH, dashMat);
     ehLine.computeLineDistances();
@@ -1044,7 +1241,7 @@ function buildEAHOverlay(){
     // --- H noktası küre (köşe işareti) ---
     const hSph = new THREE.Mesh(
         new THREE.SphereGeometry(0.07,12,12),
-        new THREE.MeshBasicMaterial({color:0xffffff})
+        new THREE.MeshBasicMaterial({color:overlayCol})
     );
     hSph.position.copy(H_pt);
     eahGroup.add(hSph);
@@ -1059,7 +1256,7 @@ function buildEAHOverlay(){
     const p3 = H_pt.clone().addScaledVector(AH_dir, sq);
     const sqPts = [p1, p2, p3];
     const sqGeo = new THREE.BufferGeometry().setFromPoints(sqPts);
-    eahGroup.add(new THREE.Line(sqGeo, new THREE.LineBasicMaterial({color:0xffffff, linewidth:2})));
+    eahGroup.add(new THREE.Line(sqGeo, new THREE.LineBasicMaterial({color:overlayCol, linewidth:2})));
 
     // --- H etiket sprite ---
     const hLabel = makeTextSprite('H');
@@ -1316,8 +1513,8 @@ function checkPaintingComplete(){
     let allPainted=true;
     faceMaterials.forEach(m=>{ const h='#'+m.color.getHexString(); if(h===DEFAULT_HEX) allPainted=false; hexSet.add(h); });
     const allDiff=hexSet.size===6;
-    if(allPainted&&allDiff){ $('#paintDoneBtn').prop('disabled',false); $('#paintStatus').text('✓ Tüm yüzeyler farklı renklerde boyandı!').css('color','var(--success-bg)'); }
-    else if(allPainted){ $('#paintStatus').text('⚠ Bazı yüzeyler aynı renkte.').css('color','#f97316'); $('#paintDoneBtn').prop('disabled',true); }
+    if(allPainted&&allDiff){ $('#paintDoneBtn').prop('disabled',false); $('#paintStatus').text('Tüm yüzeyler farklı renklerde boyandı!').css('color','var(--success-bg)'); }
+    else if(allPainted){ $('#paintStatus').text('Tüm yüzeyler boyandı. İlerleyebilirsiniz.').css('color','var(--success-bg)'); $('#paintDoneBtn').prop('disabled',false); }
     else { const painted=faceMaterials.filter(m=>'#'+m.color.getHexString()!==DEFAULT_HEX).length; $('#paintStatus').text(`${painted}/6 yüzey boyandı`).css('color','var(--text-secondary)'); $('#paintDoneBtn').prop('disabled',true); }
 }
 
@@ -1694,32 +1891,52 @@ window.addEventListener('resize',()=>{
     if(ww>0&&hh>0){ mainRenderer.setSize(ww,hh); mainCamera.aspect=ww/hh; mainCamera.updateProjectionMatrix(); }
 });
 
+// 3D Canvas için Klavye ile Döndürme Erişilebilirliği (M4 / MS-08 / MS-09)
+if(prismEl){
+    prismEl.setAttribute('tabindex', '0');
+    prismEl.setAttribute('role', 'region');
+    prismEl.setAttribute('aria-label', '3D Eğik Prizma Görünümü (Ok tuşları ile döndürebilir, + ve - ile yakınlaştırabilirsiniz)');
+    prismEl.addEventListener('keydown', function(e){
+        const step = 0.08;
+        if(e.key === 'ArrowLeft'){
+            camTheta -= step; updateCamera(); e.preventDefault();
+        } else if(e.key === 'ArrowRight'){
+            camTheta += step; updateCamera(); e.preventDefault();
+        } else if(e.key === 'ArrowUp'){
+            camPhi = Math.max(0.08, camPhi - step); updateCamera(); e.preventDefault();
+        } else if(e.key === 'ArrowDown'){
+            camPhi = Math.min(Math.PI - 0.08, camPhi + step); updateCamera(); e.preventDefault();
+        } else if(e.key === '+' || e.key === '=' || e.key === 'PageUp'){
+            doZoom(-CAM_STEP); e.preventDefault();
+        } else if(e.key === '-' || e.key === '_' || e.key === 'PageDown'){
+            doZoom(CAM_STEP); e.preventDefault();
+        } else if(e.key === 'Home' || e.key === '0'){
+            camTheta = CAM_INIT_THETA; camPhi = CAM_INIT_PHI; camDist = CAM_INIT_DIST; updateCamera(); e.preventDefault();
+        }
+    });
+}
+
 /* ══ GÖRÜNÜM KONTROL ════════════════════════════════════════════ */
 let netViewed=false;
 $('#view3dBtn').on('click',function(){
     $('.tb-btn[id^="view"]').removeClass('active'); $(this).addClass('active');
     $('#netContainer').removeClass('active'); $('#prismContainer').show();
     netViewed=true; updateNetDoneBtn();
+    if(!mainRenderer) initMainThreeJS();
     setTimeout(()=>window.dispatchEvent(new Event('resize')),50);
 });
 $('#viewNetBtn').on('click',function(){
     $('.tb-btn[id^="view"]').removeClass('active'); $(this).addClass('active');
     $('#prismContainer').hide(); $('#netContainer').addClass('active');
+    if(measureMode){ measureMode=false; $('#measureBtn').removeClass('active'); toggleMeasure(false); }
+    if(angleMode){ angleMode=false; $('#angleBtn').removeClass('active'); toggleAngle(false); }
     buildAnimatedNet(currentNetMode);
     netViewed=true; updateNetDoneBtn();
 });
 function updateNetDoneBtn(){ if(netViewed) $('#netViewDoneBtn').prop('disabled',false); }
 $('#resetRotationBtn').on('click',function(){
     camTheta=CAM_INIT_THETA; camPhi=CAM_INIT_PHI; camDist=CAM_INIT_DIST; updateCamera();
-    faceMaterials.forEach(m=>{ m.color.setHex(DEFAULT_COLOR); m.opacity=0.72; });
-    netFaceColors={0:DEFAULT_HEX,1:DEFAULT_HEX,2:DEFAULT_HEX,3:DEFAULT_HEX,4:DEFAULT_HEX,5:DEFAULT_HEX};
-    selectedColorIndex=null; $('.tb-color-swatch').removeClass('selected');
-    $('#prismContainer').removeClass('paint-mode');
-    measureMode=false; toggleMeasure(false); angleMode=false; toggleAngle(false);
-    $('#measurePanel').removeClass('visible'); $('#measureRows').empty();
-    $('#angleOverlay').removeClass('visible'); $('#angleRows').empty();
-    measuredCount=0; angleMeasureCount=0; updateHint();
-    if($('#netContainer').hasClass('active')) $('#view3dBtn').click();
+    updateHint();
 });
 
 /* ══════════════════════════════════════════════════════════════════
@@ -2109,18 +2326,15 @@ function buildMeasuredNet(){
 
 function checkNetPaintComplete(){
     const allPainted=Object.values(netFaceColors).every(h=>h!==DEFAULT_HEX);
-    const hexSet=new Set(Object.values(netFaceColors).filter(h=>h!==DEFAULT_HEX));
     const count=Object.values(netFaceColors).filter(h=>h!==DEFAULT_HEX).length;
-    const hasDuplicate=count>0&&hexSet.size<count;
-    if(allPainted&&hexSet.size===6){ $('#netPaintConvertBtn').prop('disabled',false).show(); $('#netPaintStatus').html('✓ Tüm yüzeyler boyandı! <span style="color:var(--text-primary);font-weight:normal;">"Eğik Prizmaya Dönüştür" butonuna tıklayınız.</span>').css('color','var(--success-bg)'); $('#netPaintWarning').hide(); } 
-    else {
-        $('#netPaintStatus').text(`${count}/6 yüzey boyandı — hepsini farklı renkte boyayın`).css('color','var(--text-secondary)');
+    if(allPainted){
+        $('#netPaintConvertBtn').prop('disabled',false).show();
+        $('#netPaintStatus').html('Tüm yüzeyler boyandı! <span style="color:var(--text-primary);font-weight:normal;">"Eğik Prizmaya Dönüştür" butonuna tıklayınız.</span>').css('color','var(--success-bg)');
+        $('#netPaintWarning').hide();
+    } else {
+        $('#netPaintStatus').text(`${count}/6 yüzey boyandı`).css('color','var(--text-secondary)');
         $('#netPaintConvertBtn').prop('disabled',true);
-        if(hasDuplicate){
-            $('#netPaintWarning').text('⚠ Aynı renkte boyanan yüzeyler var!').css('color','var(--error-bg)').show();
-        } else {
-            $('#netPaintWarning').hide();
-        }
+        $('#netPaintWarning').hide();
     }
 }
 
@@ -2283,7 +2497,7 @@ $(document).on('click','.img-choice-btn',function(){
 const imgHints={
     'Küre':'Küre, her noktası merkeze eşit uzaklıkta olan kapalı bir yüzeydir. Sehpanın ayakları düz yüzeylerden oluşur — tekrar dene!',
     'Küp':'Küpün tüm yüzleri eşit karelerdir ve kenarları birbirine diktir. Sehpa ayaklarına dikkatlice bak — eğik mi yoksa dik mi?',
-    'Dikdörtgenler Prizması':'Dikdörtgenler prizmasının yanal kenarları tabana diktir. Sehpa ayaklarının eğimine dikkat et!'
+    'Dikdörtgenler Prizması':'Dikdörtgenler prizmasının yanal ayrıtları tabana diktir. Sehpa ayaklarının eğimine dikkat et!'
 };
 $(document).on('click','#imageChoicesContainer .img-choice-btn',function(){
     if($(this).prop('disabled')) return;
@@ -2309,7 +2523,7 @@ $('#imgContinueBtn').on('click',function(){
 /* Kuril diyalogu */
 const kurilHints={
     'Küre':'Küre, her noktası merkeze eşit uzaklıkta olan kapalı bir yüzeydir. Kayalar sütun biçimindedir — tekrar dene!',
-    'Dik Prizma':'Dik prizmanın yanal kenarları tabana dik olur. Kayalara tekrar bak — eğik mi, dik mi duruyorlar?',
+    'Dik Prizma':'Dik prizmanın yanal ayrıtları tabana dik olur. Kayalara tekrar bak — eğik mi, dik mi duruyorlar?',
     'Dikdörtgenler Prizması':'Dikdörtgenler prizması dik bir prizmadır. Kayaların eğik duruşunu göz önünde bulundur!'
 };
 $(document).on('click','#kurilChoicesContainer .img-choice-btn',function(){
@@ -2337,6 +2551,7 @@ $('#kurilContinueBtn').on('click',function(){
 $('.tab-button').on('click',function(){ if(!$(this).prop('disabled')){ $('.tab-button').removeClass('active'); $(this).addClass('active'); loadApplication($(this).data('tab')); } });
 function loadApplication(n){
     $('#contentArea').empty();
+    if(!mainRenderer) initMainThreeJS();
     // Serbest moddan kalan sahne elemanlarını temizle
     if(_eaFootGroup && mainScene){ mainScene.remove(_eaFootGroup); _eaFootGroup=null; }
     if(eahGroup){ mainScene && mainScene.remove(eahGroup); eahGroup=null; }
@@ -2358,6 +2573,7 @@ function loadApplication(n){
 /* ══ UYGULAMA 1 ═════════════════════════════════════════════════ */
 function loadApp1(){
     $('#view3dBtn').click();
+    if(!mainRenderer) initMainThreeJS();
     measuredCount=0; angleMeasureCount=0;
     netFaceColors={0:DEFAULT_HEX,1:DEFAULT_HEX,2:DEFAULT_HEX,3:DEFAULT_HEX,4:DEFAULT_HEX,5:DEFAULT_HEX};
 
@@ -2384,12 +2600,13 @@ function loadApp1(){
         case 1:
             html+=`<div class="instruction-box">
                 <h3>Eğik Prizmanın Tanımı</h3>
-                <p>Birbirine paralel iki eş taban ve yanal yüzlerden oluşan geometrik cisimdir. Yanal kenarlar tabana dik değildir.</p>
+                <p>Birbirine paralel iki eş taban ve yanal yüzlerden oluşan geometrik cisimdir. Yanal ayrıtlar tabana dik değildir.</p>
                 <ul style="margin-top:8px;">
                     <li><strong>2 Kare yüzey</strong> (tabanlar): $6\\times6\\,\\mathrm{cm}$</li>
                     <li><strong>2 Dikdörtgen yüzey</strong> (yan yüzler): $6\\times9\\,\\mathrm{cm}$</li>
-                    <li><strong>2 Paralelkenar yüzey</strong> (eğik yan yüzler): $6\\times9\\,\\mathrm{cm}$</li>
+                    <li><strong>2 Paralelkenar yüzey</strong> (eğik yan yüzler): Kenar uzunlukları $6\\,\\mathrm{cm}$ ve $9\\,\\mathrm{cm}$ olan paralelkenarlar</li>
                 </ul>
+                <p style="font-size:0.85em;color:var(--text-secondary);margin-top:8px;">💡 <em>Not: Bu modelde eğilme tek eksen doğrultusunda olduğu için 2 yan yüz dikdörtgen, 2 yan yüz paralelkenardır.</em></p>
             </div>
             <div style="text-align:center;"><button class="action-button" id="step1Next">Devam Et →</button></div>`; break;
         case 2:
@@ -2557,8 +2774,6 @@ function loadApp3(){
 /* ══ SERBEST MOD ══════════════════════════════════════════════ */
 function loadFree(){
     $('#view3dBtn').click();
-    // Serbest modda kalem ve makas araçlarını gizle
-    $('#pencilBtn, #pencilDivider, #scissorsDivider').hide();
     // Cetvel ve açı araçları aktif kalsın
     $('#measureBtn, #angleBtn').show();
     setTimeout(()=>initMainThreeJS(), 100);
@@ -2933,533 +3148,6 @@ function addDroppedPerpendicularEA(E, A, ae_x, ae_y, angDeg){
     mainScene.add(_eaFootGroup);
 }
 
-/* A4 kağıdı: çizgisiz, A/B/K/L noktaları + kalem ikonları */
-function buildA4WithPoints(drawnAB, drawnKL) {
-    const $p = $('#a4Paper');
-    $p.empty();
-    $('#a4Container .a4-point-label').remove();  // ← önceki etiketleri temizle
-    const pw = $p.outerWidth() || 340;
-    const ph = $p.outerHeight() || 480;
-
-    // Kağıdı 15 cm'lik orta parça gibi göster (Kesilmiş hali)
-    const ratio = 15 / 29.7;
-    const gap = Math.round(ph * ratio);
-    
-    // Kağıt görünümünü sadece orta şerit yap
-    $p.css({
-        'height': gap + 'px',
-        'margin': 'auto',
-        'top': '0', 'bottom': '0', 'left': '0', 'right': '0',
-        'position': 'absolute',
-        'background': '#fff',
-        'border': '1px solid #cbd5e1'
-    });
-
-    const bottomLineY = gap - 5; // Şeridin en alt kenarı
-    const segW = Math.round(pw * 0.22);
-    const startX_AB = Math.round(pw * 0.15);
-    const startX_KL = Math.round(pw * 0.53);
-
-    // 15 cm Ölçü oku (Şeridin tam boyu)
-    const $dim = $('<div class="a4-dimension-label"></div>').css({
-        position: 'absolute', right: '6px', top: '0', bottom: '0',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        zIndex: '30'
-    });
-    $dim.html(`<div style="position:relative;height:${gap}px;display:flex;align-items:center;">
-        <svg width="14" height="${gap}" viewBox="0 0 14 ${gap}">
-            <line x1="7" y1="8" x2="7" y2="${gap-8}" stroke="#1e293b" stroke-width="1.5"/>
-            <polygon points="7,0 3,10 11,10" fill="#1e293b"/>
-            <polygon points="7,${gap} 3,${gap-10} 11,${gap-10}" fill="#1e293b"/>
-        </svg>
-        <span style="margin-left:4px;font-size:10px;font-weight:700;color:#1e293b;">15cm</span>
-    </div>`);
-    $p.append($dim);
-
-    // $p'nin sayfa üzerindeki konumunu ve a4Container'ın konumunu hesapla
-    const $container = $('#a4Container');
-
-        function makeDot(x, y, label) {
-            // Kırmızı çubuk — kağıt içinde kalır (overflow:hidden'dan etkilenmez)
-            $p.append($('<div>').css({
-                position: 'absolute', left: x + 'px', top: (y - 6) + 'px',
-                width: '2px', height: '12px', background: '#ef4444',
-                transform: 'translateX(-50%)', borderRadius: '1px', zIndex: '15'
-            }));
-
-            // Etiket — a4Container'a eklenir, kağıdın overflow:hidden'ından kaçar
-            const $label = $('<div>').addClass('a4-point-label').css({
-                position: 'absolute',
-                fontSize: '11px', fontWeight: '700', color: '#ff0000',
-                zIndex: '50', whiteSpace: 'nowrap',
-                pointerEvents: 'none',
-                visibility: 'hidden'
-            }).text(label);
-            $container.append($label);
-
-            // Kağıt tamamen render olduktan sonra gerçek konumu hesapla
-            setTimeout(function() {
-                const pRect = $p[0].getBoundingClientRect();
-                const cRect = $container[0].getBoundingClientRect();
-                const labelLeft = (pRect.left - cRect.left) + x;
-                const labelTop  = (pRect.top  - cRect.top)  + y + 8;
-                $label.css({
-                    left: labelLeft + 'px',
-                    top:  labelTop  + 'px',
-                    transform: 'translateX(-50%)',
-                    visibility: 'visible'
-                });
-            }, 50);
-        }
-
-    makeDot(startX_AB, bottomLineY , 'A');
-    makeDot(startX_AB + segW, bottomLineY, 'B');
-    makeDot(startX_KL, bottomLineY, 'K');
-    makeDot(startX_KL + segW, bottomLineY, 'L');
-
-    // Kırmızı Kesikli Rehber Çizgiler
-    if (!drawnAB) $p.append($('<div>').attr('data-seg-dash', 'AB').css({
-        position: 'absolute', left: startX_AB + 'px', top: (bottomLineY + 4) + 'px', width: segW + 'px', height: '2px',
-        background: 'repeating-linear-gradient(90deg,#ef4444 0 7px,transparent 7px 11px)', transform: 'translateY(-50%)'
-    }));
-    if (!drawnKL) $p.append($('<div>').attr('data-seg-dash', 'KL').css({
-        position: 'absolute', left: startX_KL + 'px', top: (bottomLineY + 4) + 'px', width: segW + 'px', height: '2px',
-        background: 'repeating-linear-gradient(90deg,#ef4444 0 7px,transparent 7px 11px)', transform: 'translateY(-50%)'
-    }));
-
-    // Kalem Simgeleri
-    const pencilSVG = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>`;
-    if (!drawnAB) $p.append($('<div class="pencil-on-paper-inactive">').data('seg', 'AB').data('liney', bottomLineY).css({
-        position: 'absolute', left: (startX_AB - 10) + 'px', top: (bottomLineY - 30) + 'px', width: '24px', height: '24px', zIndex: 20
-    }).html(pencilSVG));
-    if (!drawnKL) $p.append($('<div class="pencil-on-paper-inactive">').data('seg', 'KL').data('liney', bottomLineY).css({
-        position: 'absolute', left: (startX_KL - 10) + 'px', top: (bottomLineY - 30) + 'px', width: '24px', height: '24px', zIndex: 20
-    }).html(pencilSVG));
-
-    if (drawnAB) $p.append($('<div>').css({ position: 'absolute', left: startX_AB + 'px', top: (bottomLineY - 15)  + 'px', width: segW + 'px', height: '2.5px', background: '#ef4444' }));
-    if (drawnKL) $p.append($('<div>').css({ position: 'absolute', left: startX_KL + 'px', top: bottomLineY + 'px', width: segW + 'px', height: '2.5px', background: '#ef4444' }));
-}
-
-/* A4 kağıdı: kesme sonrası orta şerit, AB/KL alt çizgisi + ortada kesikli çizgi + kalem ikonu */
-function buildA4WithMiddleLine() {
-    const $p = $('#a4Paper');
-    $p.empty();
-    $('#a4Container .a4-point-label').remove();
-
-    const pw = $p.outerWidth() || 480;
-    const ph = $p.outerHeight() || 340;
-
-    // Üst kenar = kağıdın üstü (top:0), Alt kenar = kağıdın altı (top:ph)
-    // Ama kağıdın border'ı var, biraz iç boşluk bırakalım
-    const bottomLineY = ph - 2;          // alt kenar = kağıdın alt iç kenarı
-    const topLineY    = 2;               // üst kenar = kağıdın üst iç kenarı
-    // Orta kesikli çizgi: alttan 9/15 yukarıda
-    const middleLineY = Math.round(bottomLineY - (bottomLineY - topLineY) * (9/15));
-
-    // Kağıt arka planı
-    $p.css({'background':'#fff','border':'1px solid #cbd5e1','position':'relative','overflow':'hidden'});
-
-    // ─── Mavi çizgiler KALDIRILDI ───
-
-    // Ortadaki kesikli çizgi (kırmızı)
-    $p.append(`<div class="middle-dash-line" style="position:absolute;left:0;right:0;top:${middleLineY}px;height:2px;
-        background:repeating-linear-gradient(90deg,#ef4444 0 7px,transparent 7px 12px);z-index:5;"></div>`);
-
-    // Kalem ikonu (orta kesikli çizgi üzerinde, sol tarafta)
-    const pencilSVG = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>`;
-    $p.append(`<div class="pencil-on-paper-middle pencil-on-paper-inactive"
-        style="position:absolute;left:${Math.round(pw*0.01)}px;top:${middleLineY-26}px;width:24px;height:24px;z-index:20;cursor:default;pointer-events:none;">
-        ${pencilSVG}
-    </div>`);
-
-    // A, B, K, L noktaları (alt çizgi üzerinde — kağıdın alt kenarı)
-    const aX = Math.round(pw * 0.22);
-    const bX = Math.round(pw * 0.40);
-    const kX = Math.round(pw * 0.58);
-    const lX = Math.round(pw * 0.76);
-
-    [
-        {x: aX, label: 'A'},
-        {x: bX, label: 'B'},
-        {x: kX, label: 'K'},
-        {x: lX, label: 'L'},
-    ].forEach(({x, label}) => {
-        $p.append($('<div>').css({
-            position: 'absolute', left: x + 'px', top: (bottomLineY - 6) + 'px',
-            width: '2px', height: '12px', background: '#ef4444',
-            transform: 'translateX(-50%)', borderRadius: '1px', zIndex: '15'
-        }));
-        const $label = $('<div>').addClass('a4-point-label').css({
-            position: 'absolute', fontSize: '11px', fontWeight: '700', color: '#1e293b',
-            zIndex: '50', whiteSpace: 'nowrap', pointerEvents: 'none', visibility: 'hidden'
-        }).text(label);
-        $('#a4Container').append($label);
-        setTimeout(function() {
-            const pRect = $p[0].getBoundingClientRect();
-            const cRect = $('#a4Container')[0].getBoundingClientRect();
-            $label.css({
-                left: (pRect.left - cRect.left + x) + 'px',
-                top:  (pRect.top  - cRect.top  + bottomLineY + 8) + 'px',
-                transform: 'translateX(-50%)',
-                visibility: 'visible'
-            });
-        }, 50);
-    });
-
-    // A', B' noktaları (üst kenar — kağıdın üst iç kenarı)
-    [{x: aX, label: "A'"}, {x: bX, label: "B'"}].forEach(({x, label}) => {
-        $p.append($('<div>').css({
-            position: 'absolute', left: x + 'px', top: topLineY + 'px',
-            width: '2px', height: '12px', background: '#1e293b',
-            transform: 'translateX(-50%)', borderRadius: '1px', zIndex: '15'
-        }));
-        const $label = $('<div>').addClass('a4-point-label').css({
-            position: 'absolute', fontSize: '11px', fontWeight: '700', color: '#1e293b',
-            zIndex: '50', whiteSpace: 'nowrap', pointerEvents: 'none', visibility: 'hidden'
-        }).text(label);
-        $('#a4Container').append($label);
-        setTimeout(function() {
-            const pRect = $p[0].getBoundingClientRect();
-            const cRect = $('#a4Container')[0].getBoundingClientRect();
-            $label.css({
-                left: (pRect.left - cRect.left + x) + 'px',
-                top:  (pRect.top  - cRect.top  + topLineY - 16) + 'px',
-                transform: 'translateX(-50%)',
-                visibility: 'visible'
-            });
-        }, 50);
-    });
-
-    // 6 cm etiketi (A ve B arasında, alt çizgide)
-    $p.append(`<div style="position:absolute;left:${Math.round((aX+bX)/2)-14}px;top:${bottomLineY+10}px;
-        font-size:10px;font-weight:700;color:#1e293b;white-space:nowrap;z-index:15;">6 cm</div>`);
-
-    // 6 cm etiketi (K ve L arasında, alt çizgide)
-    $p.append(`<div style="position:absolute;left:${Math.round((kX+lX)/2)-14}px;top:${bottomLineY+10}px;
-        font-size:10px;font-weight:700;color:#1e293b;white-space:nowrap;z-index:15;">6 cm</div>`);
-
-    // 15 cm ölçü oku (sağ kenar) — topLineY'den bottomLineY'ye (kağıdın tamamı)
-    $p.append(`<div style="position:absolute;right:6px;top:${topLineY}px;height:${bottomLineY-topLineY}px;
-        display:flex;align-items:center;z-index:20;">
-        <svg width="14" height="${bottomLineY-topLineY}" viewBox="0 0 14 ${bottomLineY-topLineY}">
-            <line x1="7" y1="4" x2="7" y2="${bottomLineY-topLineY-4}" stroke="#1e293b" stroke-width="1.5"/>
-            <polygon points="7,0 3,10 11,10" fill="#1e293b"/>
-            <polygon points="7,${bottomLineY-topLineY} 3,${bottomLineY-topLineY-10} 11,${bottomLineY-topLineY-10}" fill="#1e293b"/>
-        </svg>
-        <span style="margin-left:2px;font-size:10px;font-weight:700;color:#1e293b;white-space:nowrap;">15 cm</span>
-    </div>`);
-}
-
-/* K', L' etiketlerini kağıt üzerine ekler */
-function addLabelOnPaper($p, x, y, label, yOffset) {
-    $p.append($('<div>').css({
-        position: 'absolute', left: x + 'px', top: (y + (yOffset||0)) + 'px',
-        fontSize: '11px', fontWeight: '700', color: '#e53e3e',
-        transform: 'translateX(-50%)', zIndex: '20', whiteSpace: 'nowrap',
-        pointerEvents: 'none'
-    }).text(label));
-    // Küçük işaret çubuğu
-    $p.append($('<div>').css({
-        position: 'absolute', left: x + 'px', top: (y - 6) + 'px',
-        width: '2px', height: '12px', background: '#e53e3e',
-        transform: 'translateX(-50%)', borderRadius: '1px', zIndex: '15'
-    }));
-}
-
-/* Sol taraftaki 9 cm ve 6 cm ölçü etiketlerini ekler */
-function addLeftMeasureLabels($p, mLineY, pph) {
-    // Önceki etiketleri temizle
-    $p.find('.left-measure-label').remove();
-
-    // Kağıdın üst kenarı = 0 (mavi çizgi YOK, kağıt kenarı baz)
-    // Alt kenar = pph (kağıt yüksekliği)
-    const topEdge  = 0;
-    const botEdge  = pph;
-    const arrowX   = 18;  // sol oka x konumu (px)
-    const labelX   = 28;  // etiket yazısı x konumu
-
-    // ── Üst ok: topEdge → mLineY (6 cm) ──────────────────────────
-    const topArrowH = mLineY - topEdge;
-    $p.append(`
-        <div class="left-measure-label" style="
-            position:absolute;
-            left:${arrowX}px;
-            top:${topEdge}px;
-            width:2px;
-            height:${topArrowH}px;
-            background:#1e293b;
-            z-index:15;
-        ">
-            <!-- ok ucu yukarı -->
-            <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);
-                width:0;height:0;
-                border-left:5px solid transparent;
-                border-right:5px solid transparent;
-                border-bottom:8px solid #1e293b;
-                margin-left:-1px;
-            "></div>
-            <!-- ok ucu aşağı -->
-            <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-                width:0;height:0;
-                border-left:5px solid transparent;
-                border-right:5px solid transparent;
-                border-top:8px solid #1e293b;
-                margin-left:-1px;
-            "></div>
-        </div>
-        <div class="left-measure-label" style="
-            position:absolute;
-            left:${labelX}px;
-            top:${topEdge + topArrowH/2 - 10}px;
-            font-size:11px;font-weight:700;color:#1e293b;
-            z-index:16;white-space:nowrap;
-        ">6 cm</div>
-    `);
-
-    // ── Alt ok: mLineY → botEdge (9 cm) ──────────────────────────
-    const botArrowH = botEdge - mLineY;
-    $p.append(`
-        <div class="left-measure-label" style="
-            position:absolute;
-            left:${arrowX}px;
-            top:${mLineY}px;
-            width:2px;
-            height:${botArrowH}px;
-            background:#1e293b;
-            z-index:15;
-        ">
-            <!-- ok ucu yukarı -->
-            <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);
-                width:0;height:0;
-                border-left:5px solid transparent;
-                border-right:5px solid transparent;
-                border-bottom:8px solid #1e293b;
-                margin-left:-1px;
-            "></div>
-            <!-- ok ucu aşağı -->
-            <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-                width:0;height:0;
-                border-left:5px solid transparent;
-                border-right:5px solid transparent;
-                border-top:8px solid #1e293b;
-                margin-left:-1px;
-            "></div>
-        </div>
-        <div class="left-measure-label" style="
-            position:absolute;
-            left:${labelX}px;
-            top:${mLineY + botArrowH/2 - 10}px;
-            font-size:11px;font-weight:700;color:#1e293b;
-            z-index:16;white-space:nowrap;
-        ">9 cm</div>
-    `);
-}
-
-/* Çizgi animasyonu: x1'den x2'ye, tam lineY üzerinde */
-function animateDrawLine(x1, x2, y, label, onDone){
-    const $p=$('#a4Paper');
-    // Animasyonlu kalem çizgisi
-    const $line=$('<div>').css({
-        position:'absolute',
-        left: x1+'px',
-        top: y+'px',
-        height:'2px',
-        background:'#ef4444',
-        width:'0px',
-        transformOrigin:'left center',
-        zIndex:8
-    });
-    $p.append($line);
-
-    // Animasyonlu kalem simgesi (soldan sağa hareket)
-    const $pen=$('<div>').css({
-        position:'absolute',
-        left: (x1-10)+'px',
-        top: (y-20)+'px',
-        zIndex:9,
-        pointerEvents:'none'
-    }).html(`<svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" width="20" height="20">
-        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
-    </svg>`);
-    $p.append($pen);
-
-    const totalW = x2 - x1;
-    const dur = 900; // ms
-    const start = performance.now();
-
-    function step(now){
-        const t = Math.min(1, (now - start) / dur);
-        const ease = 1 - Math.pow(1-t, 3);
-        const curW = totalW * ease;
-        $line.css('width', curW+'px');
-        $pen.css('left', (x1 + curW - 10)+'px');
-        if(t < 1){
-            requestAnimationFrame(step);
-        } else {
-            $pen.remove();
-            if(onDone) onDone();
-        }
-    }
-    requestAnimationFrame(step);
-}
-
-function checkPencilDrawComplete(drawnAB, drawnKL){
-    if(drawnAB && drawnKL){
-        $('#app3Step5NextBtn').prop('disabled', false);
-    }
-}
-
-/* Alt çizgiye makas ikonları ekler */
-function addScissorsToLine(lineY){
-    const $p=$('#a4Paper');
-    const pw=$p.outerWidth()||480;
-    // İki makas: %20 ve %60 konumunda
-    [{idx:0,pct:0.2},{idx:1,pct:0.6}].forEach(({idx,pct})=>{
-        const lx=Math.round(pw*pct);
-        $p.append(`<div class="a4-scissor scissor-inactive"
-            id="scissorOnPaper${idx}"
-            data-liney="${lineY}"
-            data-lineidx="${idx}"
-            style="position:absolute;left:${lx}px;top:${lineY-14}px;pointer-events:none;">
-            <svg width="36" height="28" viewBox="0 0 36 28">
-                <line x1="8" y1="14" x2="22" y2="8"  stroke="#475569" stroke-width="2" stroke-linecap="round"/>
-                <line x1="8" y1="14" x2="22" y2="20" stroke="#475569" stroke-width="2" stroke-linecap="round"/>
-                <circle cx="8" cy="14" r="2.5" fill="#64748b"/>
-                <path d="M0,4 Q4,14 0,24" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
-                <path d="M4,8 Q7,14 4,20" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
-            </svg>
-        </div>`);
-    });
-}
-
-/* Kesim sonrası: parçaları göster, parça 1+3'ü animasyonla kaldır */
-function showCutPieces(){
-    const $p=$('#a4Paper');
-    const h=$p.outerHeight()||340;
-    const lineY=Math.round(h*0.72);
-
-    // Kağıdın tüm mevcut child'larını gizle (makas, çizgiler vb.)
-    $p.children().not('#cutOverlay').css({'transition':'opacity 0.5s','opacity':'0'});
-
-    // Tek bir overlay div: kağıdı 3 parçaya böler görsel olarak
-    const $overlay=$(`<div id="cutOverlay" style="
-        position:absolute;inset:0;z-index:20;
-        display:flex;flex-direction:column;">
-        <div id="cutP1" style="
-            flex:0 0 ${lineY}px;
-            background:rgba(224,242,254,1);
-            display:flex;align-items:center;justify-content:center;
-            transition:opacity 0.8s ease, transform 0.8s ease;
-            overflow:hidden;">
-            <span style="font-size:12px;font-weight:600;color:#475569;">Parça 1</span>
-        </div>
-        <div id="cutP2" style="
-            flex:0 0 2px;background:#10b981;"></div>
-        <div id="cutP3" style="
-            flex:1;
-            background:rgba(254,249,195,1);
-            display:flex;align-items:center;justify-content:center;
-            transition:opacity 0.8s ease, transform 0.8s ease;
-            overflow:hidden;">
-            <span style="font-size:12px;font-weight:600;color:#475569;">Parça 3</span>
-        </div>
-    </div>`);
-
-    // Kağıdın arka planını şeffaf yap (bg rengi artık overlay'den geliyor)
-    $p.css('background','transparent');
-    $p.append($overlay);
-
-    // Kırmızı çizgiler ve 15cm ok tekrar görünsün, overlay üstünde
-    const $labels=$p.find('[style*="#ef4444"],[style*="right:8px"],[style*="#1e293b"]');
-    $labels.css({'opacity':'1','z-index':'25','position':'absolute'});
-
-    // Kısa bekle, sonra parça 1 yukarı + parça 3 aşağı kayarak solar
-    setTimeout(()=>{
-        const p1=document.getElementById('cutP1');
-        const p3=document.getElementById('cutP3');
-        if(p1){ p1.style.opacity='0'; p1.style.transform='translateY(-60px)'; }
-        if(p3){ p3.style.opacity='0'; p3.style.transform='translateY(60px)'; }
-    }, 500);
-
-    // Animasyon bitince overlay'i düzenle
-    setTimeout(()=>{
-        // Parça 1 ve 3 alanlarını arka plan rengiyle doldur
-        const bgColor=getComputedStyle(document.documentElement)
-            .getPropertyValue('--bg-primary').trim() || '#0a0e27';
-        const p1=document.getElementById('cutP1');
-        const p3=document.getElementById('cutP3');
-        if(p1){ p1.style.background=bgColor; p1.style.opacity='1'; p1.style.transform=''; p1.innerHTML=''; }
-        if(p3){ p3.style.background=bgColor; p3.style.opacity='1'; p3.style.transform=''; p3.innerHTML=''; }
-
-        // Kırmızı çizgiler ve 15 cm ok tekrar göster
-        $p.children().not('#cutOverlay').css('opacity','0');
-        $labels.css('opacity','1');
-
-        $('#app3CutStatus')
-            .html('✓ Orta parça elde edildi!')
-            .css('color','var(--success-bg)');
-        $('#app3Step3Btn').prop('disabled',false);
-    }, 1400);
-}
-
-function buildA4Paper(cut){
-    const $p=$('#a4Paper');
-    $p.empty();
-    const h=$p.outerHeight()||400;
-    const ratio=15/29.7;
-    const gap=Math.round(h*ratio);
-    const line1=Math.round((h-gap)/2);
-    const line2=line1+gap;
-
-    if(!cut){
-        // Mavi paralel çizgiler
-        $p.append(`<div class="a4-line" style="top:${line1}px;"></div>`);
-        $p.append(`<div class="a4-line" style="top:${line2}px;"></div>`);
-
-        // 15 cm ok + etiket
-        $p.append(`
-            <div style="position:absolute;right:8px;top:${line1}px;height:${gap}px;display:flex;align-items:center;">
-                <svg width="14" height="${gap}" viewBox="0 0 14 ${gap}" style="margin-right:2px;">
-                    <line x1="7" y1="2" x2="7" y2="${gap-2}" stroke="#1e293b" stroke-width="1.5"/>
-                    <polyline points="2,6 7,2 12,6" fill="none" stroke="#1e293b" stroke-width="1.5"/>
-                    <polyline points="2,${gap-6} 7,${gap-2} 12,${gap-6}" fill="none" stroke="#1e293b" stroke-width="1.5"/>
-                </svg>
-                <span style="font-size:10px;font-weight:700;color:#1e293b;white-space:nowrap;">15 cm</span>
-            </div>`);
-
-        // Makas ikonları — pasif (scissor-inactive), tıklanamaz
-        [line1, line2].forEach((lineY, i)=>{
-            $p.append(`
-                <div class="a4-scissor scissor-inactive"
-                     id="scissorOnPaper${i}"
-                     data-liney="${lineY}"
-                     data-lineidx="${i}"
-                     style="position:absolute;left:2px;top:${lineY-14}px;cursor:default;pointer-events:none;">
-                    <svg width="36" height="28" viewBox="0 0 36 28">
-                        <line x1="8" y1="14" x2="22" y2="8"  stroke="#475569" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="8" y1="14" x2="22" y2="20" stroke="#475569" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="8" cy="14" r="2.5" fill="#64748b"/>
-                        <path d="M0,4 Q4,14 0,24" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
-                        <path d="M4,8 Q7,14 4,20" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
-                    </svg>
-                </div>`);
-        });
-
-    } else {
-        // Kesilmiş görünüm — 3 parça
-        const colors=['rgba(224,242,254,.6)','rgba(240,253,244,.6)','rgba(254,249,195,.6)'];
-        const tops=[0, line1+3, line2+3];
-        const heights=[line1-3, gap-6, h-line2-3];
-        tops.forEach((t,i)=>{
-            $p.append(`<div style="position:absolute;left:0;right:0;top:${t}px;height:${Math.max(heights[i],0)}px;
-                background:${colors[i]};border-bottom:${i<2?'2px dashed #94a3b8':'none'};
-                display:flex;align-items:center;justify-content:center;">
-                <span style="font-size:11px;font-weight:600;color:#475569;opacity:.7;">Parça ${i+1}</span>
-            </div>`);
-        });
-    }
-}
-
 /* ── Adım 4 için: sağ panelde eğik + dik prizma yan yana ── */
 function showBothPrismsInScene(){
     if(!mainScene) return;
@@ -3584,8 +3272,6 @@ function showBothPrismsInScene(){
 function renderApp3Step(step){
     // A4 container'ı gizle (bu adımlarda kullanılmıyor)
     $('#a4Container').removeClass('active');
-    $('#scissorBtn,#scissorDivider').hide();
-    $('#pencilBtn,#pencilDivider').hide();
     $('#prismContainer').show();
     $('#netContainer').removeClass('active');
     $('#view3dBtn').addClass('active');
@@ -3686,7 +3372,7 @@ function renderApp3Step(step){
             <div class="instruction-box">
                 <p><strong>Prizmanın Yüksekliğini Bulma</strong><br>
                 Araç panelinde eğik prizma üzerinde <strong>EAH dik üçgeni</strong> gösterilmektedir.<br>
-                <strong>|EH|</strong> prizmanın yüksekliğidir. <strong>sin 78° = 0,98</strong> <b>değerini kullanarak</b> <strong>|EH|</strong> <b>yüksekliğini hesaplayınız. Bunun için alttaki hesap makinesi aracını kullanabilirsiniz. Ardından alttaki kutuya bulduğunuz sonucu giriniz.</b></p>
+                <strong>|EH|</strong> prizmanın yüksekliğidir. <strong>sin 78° ≈ 0,98</strong> <b>değerini kullanarak</b> <strong>|EH|</strong> <b>yüksekliğini hesaplayınız. Bunun için alttaki hesap makinesi aracını kullanabilirsiniz. Ardından alttaki kutuya bulduğunuz sonucu giriniz.</b></p>
             </div>
             <div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;">
                 <label style="font-size:1em;font-weight:700;color:var(--text-accent);white-space:nowrap;">Yükseklik (h) =</label>
@@ -3714,7 +3400,7 @@ function renderApp3Step(step){
             $('#app3Step1CalcContainer .instruction-box').html(
                 '<p><strong>Prizmanın Yüksekliğini Bulun</strong><br>' +
                 'Araç panelinde eğik prizma üzerinde <strong>EAH dik üçgeni</strong> gösterilmektedir. ' +
-                '<strong>|EH|</strong> prizmanın yüksekliğidir. <strong>sin 78° = 0,98</strong> değerini kullanarak yüksekliği bulunuz.</p>'
+                '<strong>|EH|</strong> prizmanın yüksekliğidir. <strong>sin 78° ≈ 0,98</strong> değerini kullanarak yüksekliği bulunuz.</p>'
             );
             $('#buildCalcDisplay').text('0');
             $('#calcTrigResults').hide().empty();
@@ -3914,7 +3600,7 @@ function renderApp3Step(step){
         </div>
         <div id="app3CmpFeedback" style="margin-top:10px;"></div>
         <div id="app3CmpContinueArea" style="display:none;text-align:center;margin-top:12px;">
-            <button class="action-button" id="app3Step4Btn">Devam Et →</button>
+            <button class="action-button" id="app3Step4Btn">Devam Et</button>
         </div>`;
 
         $('#contentArea').html(html);
@@ -3942,8 +3628,8 @@ function renderApp3Step(step){
                     `<div class="error-message">✗ Yanlış.<br>
                         <span style="font-size:.9em;"><strong>İpucu:</strong> Her iki prizma için hesapladığın hacim değerlerine tekrar bak.
                             <div style="margin:12px 0;padding:10px 14px;background:var(--bg-tertiary);border-radius:8px;font-size:.95em;">
-                            <div style="margin-bottom:6px;">🔷 <strong>Eğik Prizmanı Hacmi:</strong> <span id="app4EgikVal" style="color:var(--text-accent);font-weight:700;">≈ 316,8 cm³</span></div>
-                            <div>🔶 <strong>Dik Prizmanın Hacmi:</strong> <span id="app4DikVal" style="color:var(--text-accent);font-weight:700;">≈ 316,8 cm³</span></div>
+                            <div style="margin-bottom:6px;"><strong>Eğik Prizmanın Hacmi:</strong> <span id="app4EgikVal" style="color:var(--text-accent);font-weight:700;">≈ 316,8 cm³</span></div>
+                            <div><strong>Dik Prizmanın Hacmi:</strong> <span id="app4DikVal" style="color:var(--text-accent);font-weight:700;">≈ 316,8 cm³</span></div>
                         </div>
                          Aynı taban alanı ve yükseklikte hacim formülü V = Taban Alanı × h</span>
                     </div>`
@@ -3954,7 +3640,8 @@ function renderApp3Step(step){
 
         $('#contentArea').find('#app3Step4Btn').on('click', function(){
             $(document).off('click.app3cmp');
-            renderApp3Step(5);
+            $('#assessmentDialogVolume').fadeIn(300);
+            setupVolumeAssessment();
         });
         return;
     }
@@ -3999,94 +3686,6 @@ function renderApp3Step(step){
 
     $('#contentArea').html(html);
     if(window.MathJax) MathJax.typesetPromise();
-}
-
-/* A4 kağıt çizici */
-function buildA4Paper(state){
-    // state: 'blank' | 'drawn' | 'cut'
-    const $p=$('#a4Paper');
-    $p.empty();
-    const h=$p.outerHeight()||400;
-    const w=$p.outerWidth()||283;
-    const ratio=15/29.7;
-    const gap=Math.round(h*ratio);
-    const line1=Math.round((h-gap)/2);
-    const line2=line1+gap;
-
-    if(state==='cut'){
-        // Kesilmiş görünüm — 3 parça
-        const colors=['rgba(224,242,254,.6)','rgba(240,253,244,.6)','rgba(254,249,195,.6)'];
-        const tops=[0,line1+3,line2+3];
-        const heights=[line1-3, gap-6, h-line2-3];
-        tops.forEach((t,i)=>{
-            $p.append(`<div style="position:absolute;left:0;right:0;top:${t}px;height:${heights[i]}px;
-                background:${colors[i]};border-bottom:${i<2?'2px dashed #94a3b8':'none'};
-                display:flex;align-items:center;justify-content:center;">
-                <span style="font-size:11px;font-weight:600;color:#475569;opacity:.7;">Parça ${i+1}</span>
-            </div>`);
-        });
-        return;
-    }
-
-    if(state==='drawn'){
-        // Çizgiler çizilmiş, makas ikonları pasif
-        $p.append(`<div class="a4-line" style="top:${line1}px;"></div>`);
-        $p.append(`<div class="a4-line" style="top:${line2}px;"></div>`);
-        $p.append(`
-            <div class="a4-dimension-label" style="top:${line1}px;right:8px;height:${gap}px;flex-direction:column;justify-content:center;">
-                <svg width="14" height="${gap}" viewBox="0 0 14 ${gap}" style="position:absolute;right:28px;top:0;">
-                    <line x1="7" y1="0" x2="7" y2="${gap}" stroke="#1e293b" stroke-width="1.5"/>
-                    <line x1="2" y1="4" x2="7" y2="0" stroke="#1e293b" stroke-width="1.5"/>
-                    <line x1="12" y1="4" x2="7" y2="0" stroke="#1e293b" stroke-width="1.5"/>
-                    <line x1="2" y1="${gap-4}" x2="7" y2="${gap}" stroke="#1e293b" stroke-width="1.5"/>
-                    <line x1="12" y1="${gap-4}" x2="7" y2="${gap}" stroke="#1e293b" stroke-width="1.5"/>
-                </svg>
-                <span style="position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;color:#1e293b;white-space:nowrap;">15 cm</span>
-            </div>`);
-        // Makas ikonları — pasif
-        [line1, line2].forEach((ly, i)=>{
-            $p.append(`<div class="a4-scissor scissor-inactive"
-                id="scissorOnPaper${i}"
-                data-liney="${ly}"
-                data-lineidx="${i}"
-                style="position:absolute;left:2px;top:${ly-14}px;pointer-events:none;">
-                <svg width="36" height="28" viewBox="0 0 36 28">
-                    <line x1="8" y1="14" x2="22" y2="8"  stroke="#475569" stroke-width="2" stroke-linecap="round"/>
-                    <line x1="8" y1="14" x2="22" y2="20" stroke="#475569" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="8" cy="14" r="2.5" fill="#64748b"/>
-                    <path d="M0,4 Q4,14 0,24" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
-                    <path d="M4,8 Q7,14 4,20" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
-                </svg>
-            </div>`);
-        });
-        return;
-    }
-
-    // state === 'blank': çizgisiz, kalem ikonları göster
-    // Boyut etiketi (15 cm ok) — ama çizgiler yok, sadece referans için konumlar var
-    $p.append(`
-        <div class="a4-dimension-label" style="top:${line1}px;right:8px;height:${gap}px;flex-direction:column;justify-content:center;opacity:0.4;">
-            <svg width="14" height="${gap}" viewBox="0 0 14 ${gap}" style="position:absolute;right:28px;top:0;">
-                <line x1="7" y1="0" x2="7" y2="${gap}" stroke="#1e293b" stroke-width="1.5" stroke-dasharray="4,3"/>
-                <line x1="2" y1="4" x2="7" y2="0" stroke="#1e293b" stroke-width="1.5"/>
-                <line x1="12" y1="4" x2="7" y2="0" stroke="#1e293b" stroke-width="1.5"/>
-                <line x1="2" y1="${gap-4}" x2="7" y2="${gap}" stroke="#1e293b" stroke-width="1.5"/>
-                <line x1="12" y1="${gap-4}" x2="7" y2="${gap}" stroke="#1e293b" stroke-width="1.5"/>
-            </svg>
-            <span style="position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;color:#1e293b;white-space:nowrap;">15 cm</span>
-        </div>`);
-    // Kalem ikonları — pasif başlar
-    [line1, line2].forEach((ly, i)=>{
-        $p.append(`<div class="pencil-on-paper pencil-on-paper-inactive"
-            id="pencilOnPaper${i}"
-            data-liney="${ly}"
-            data-lineidx="${i}"
-            style="position:absolute;left:2px;top:${ly-14}px;pointer-events:none;cursor:default;">
-            <svg width="36" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
-                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
-            </svg>
-        </div>`);
-    });
 }
 
 let app2MeasuredLateral=false, app2MeasuredBase=false, app2FoundAngle=false;
@@ -4461,7 +4060,7 @@ function renderApp2Step(step){
                 <div id="app2BaseStatus" style="color:var(--text-secondary);margin-top:4px;">📏 Taban ayrıtı: ölçülmedi</div>
             </div>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="app2MeasureDoneBtn" disabled>Devam Et →</button></div>`;
+        <div style="text-align:center;"><button class="action-button" id="app2MeasureDoneBtn" disabled>Devam Et</button></div>`;
 
         app2MeasuredLateral=false; app2MeasuredBase=false;
 
@@ -4490,7 +4089,7 @@ function renderApp2Step(step){
             <div class="progress-label"><span>Uygulama 2 — İlerleme</span><span>2/7</span></div>
             <div class="progress-bar"><div class="progress-fill" style="width:29%"></div></div>
         </div>
-        <<div class="instruction-box">
+        <div class="instruction-box">
             <h3>Taban Açısını Ölçme</h3>
             <p><strong>Açıölçer aracını</strong> kullanarak eğik prizmanın yanal ayrıtının taban düzlemiyle yaptığı açıyı ölçünüz.</p>
             <p style="margin-top:8px;">Öncelikli olarak yanal ayrıtın <strong>üst uç noktasını</strong> (E ya da H), ardından bağlı olduğu <strong>taban köşesini</strong> (A veya D), son olarak da taban köşesinin <strong>komşu taban köşesini</strong> seçiniz.</p>
@@ -4499,7 +4098,7 @@ function renderApp2Step(step){
                 📐 Açı: henüz ölçülmedi
             </div>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="app2AngleDoneBtn" disabled>Devam Et →</button></div>`;
+        <div style="text-align:center;"><button class="action-button" id="app2AngleDoneBtn" disabled>Devam Et</button></div>`;
 
         app2FoundAngle=false;
         // App2 step1: köşe seçim kısıtlaması
@@ -4553,7 +4152,7 @@ function renderApp2Step(step){
                 <p><strong>|EH| Uzunluğunu Bulun</strong><br>
                 Araç panelinde eğik prizma üzerinde <strong>EAH dik üçgeni</strong> oluşturulmuştur.
                 <strong>|EH|</strong> uzunluğunu sin 78° değerini kullanarak bulunuz.</p>
-                <p style="margin-top:8px;font-size:.95em;"><strong>sin 78° = 0,98</strong></p>
+                <p style="margin-top:8px;font-size:.95em;"><strong>sin 78° ≈ 0,98</strong></p>
             </div>
             <div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;">
                 <label style="font-size:1em;font-weight:700;color:var(--text-accent);white-space:nowrap;">|EH| =</label>
@@ -4605,7 +4204,7 @@ function renderApp2Step(step){
             </div>
             <div id="equalFacesFeedback" style="margin-top:10px;"></div>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="app2EqualDoneBtn" disabled>Devam Et →</button></div>`;
+        <div style="text-align:center;"><button class="action-button" id="app2EqualDoneBtn" disabled>Devam Et</button></div>`;
 
         // Açınımı ölçüsüz göster (kenar uzunlukları yazılı değil)
         $('#viewNetBtn').click();
@@ -4616,7 +4215,6 @@ function renderApp2Step(step){
     case 4: {
         // Gerçek değerler: taban kare 6×6=36, dikdörtgen 6×9=54, paralelkenar 6×(9×sin78°)≈6×8,8≈52,8
         // Toplam = 2×36 + 2×54 + 2×52,8 = 72 + 108 + 105,6 = 285,6 cm²
-        // Öğrencinin ulaşması gereken formül: 2·36 + 2·54 + 2·52,8 = 285,6 cm²
         const sin78=Math.sin(78*Math.PI/180);
         const base=PW*CM_PER_UNIT; // 6
         const depth=PD*CM_PER_UNIT; // 6
@@ -4636,15 +4234,29 @@ function renderApp2Step(step){
             <p>
                 <b>Açınımdan yararlanarak eğik prizmanın toplam yüzey alanını hesaplayınız.</b>
             </p>
+            <div style="margin-top:10px;padding:10px;background:var(--bg-tertiary);border-radius:8px;font-size:0.9em;line-height:1.6;">
+                <div style="margin-bottom:6px;"><strong>1. Taban Alanları (2 adet kare):</strong><br>
+                    2 &times; (6 &times; 6) = 72 cm²
+                </div>
+                <div style="margin-bottom:6px;"><strong>2. Dikdörtgen Yanal Yüzler (2 adet dikdörtgen):</strong><br>
+                    2 &times; (6 &times; 9) = 108 cm²
+                </div>
+                <div style="margin-bottom:4px;border-top:1px dashed var(--border-color);padding-top:6px;">
+                    <strong>3. Paralelkenar Yanal Yüzler (2 adet paralelkenar):</strong><br>
+                    <span style="color:var(--text-secondary);">Yanal ayrıt uzunluğu 9 cm'dir. Ancak paralelkenarın alanı, taban ile bu tabana ait <strong>yüksekliğin (h &approx; 8,8 cm)</strong> çarpımıdır:</span><br>
+                    Tek paralelkenar alanı = 6 &times; 8,8 = 52,8 cm²<br>
+                    2 &times; 52,8 = 105,6 cm²
+                </div>
+            </div>
             <div style="margin-top:12px;">
-                <label style="font-size:.9em;color:var(--text-secondary);">Yüzey Alanı = </label>
+                <label style="font-size:.9em;color:var(--text-secondary);font-weight:600;">Toplam Yüzey Alanı = </label>
                 <input type="text" id="surfaceAreaInput" class="input-field" placeholder="Sonucu giriniz (cm²)" inputmode="decimal" style="margin-top:6px;"/>
             </div>
             <div id="surfaceAreaFeedback" style="margin-top:10px;"></div>
         </div>
         <div style="text-align:center;">
             <button class="action-button" id="app2SurfaceCheckBtn">Kontrol Et</button>
-            <button class="action-button" id="app2SurfaceDoneBtn" style="display:none;">Devam Et →</button>
+            <button class="action-button" id="app2SurfaceDoneBtn" style="display:none;">Devam Et</button>
         </div>`;
         // Açınımı ölçülerle göster
         $('#viewNetBtn').click();
@@ -4666,10 +4278,14 @@ function renderApp2Step(step){
                     $('#surfaceAreaInput').prop('disabled',true);
                     $('#app2SurfaceCheckBtn').hide();
                     $('#app2SurfaceDoneBtn').show();
+                } else if(Math.abs(val - 288) <= 2) {
+                    $('#surfaceAreaFeedback').html(
+                        `<div class="error-message">✗ Paralelkenarın alanında 9 cm yanal ayrıtı değil, tabana dik inen 8,8 cm yüksekliğini kullanınız (6 × 8,8 = 52,8 cm²). Toplam: 72 + 108 + 105,6 = 285,6 cm²</div>`
+                    );
                 } else {
                     $('#surfaceAreaFeedback').html(
                         `<div class="error-message">✗ Henüz doğru değil.<br>
-                        <span style="font-size:.9em;"><strong>İpucu:</strong> Yüzey Alanı = 2·(kare alanı) + 2·(dikdörtgen alanı) + 2·(paralelkenar alanı)</span></div>`
+                        <span style="font-size:.9em;"><strong>İpucu:</strong> Toplam Alan = 2·(kare alanı: 36) + 2·(dikdörtgen alanı: 54) + 2·(paralelkenar alanı: 6 × 8,8 = 52,8) = 285,6 cm²</span></div>`
                     );
                 }
             });
@@ -4687,7 +4303,7 @@ function renderApp2Step(step){
             <h3>Ölçme ve Değerlendirme</h3>
             <p>Alttaki butona tıklayarak soru penceresini açınız.</p>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="openAssessmentBtn">Soruyu Gör →</button></div>`;
+        <div style="text-align:center;"><button class="action-button" id="openAssessmentBtn">Soruyu Gör</button></div>`;
         break;
 
     /* ── Adım 6: Tamamlandı ── */
@@ -4717,8 +4333,14 @@ function renderApp2Step(step){
 
     /* Adım sonrası event bağlamaları */
     switch(step){
-    case 0: $('#app2MeasureDoneBtn').on('click',()=>renderApp2Step(1)); break;
-    case 1: $('#app2AngleDoneBtn').on('click',()=>renderApp2Step(2)); break;
+    case 0:
+        toggleMeasure(true);
+        $('#app2MeasureDoneBtn').on('click',()=>renderApp2Step(1));
+        break;
+    case 1:
+        toggleAngle(true);
+        $('#app2AngleDoneBtn').on('click',()=>renderApp2Step(2));
+        break;
     case 2:
         // Kamera ilk konumuna döndür
         camTheta=CAM_INIT_THETA; camPhi=CAM_INIT_PHI; camDist=CAM_INIT_DIST;
@@ -4740,7 +4362,7 @@ function renderApp2Step(step){
                 '<p><strong>|EH| Uzunluğunu Bulun</strong><br>' +
                 'Araç panelinde eğik prizma üzerinde <strong>EAH dik üçgeni</strong> oluşturulmuştur. ' +
                 '<strong>|EH|</strong> uzunluğunu sin 78° değerini kullanarak bulunuz.</p>' +
-                '<p style="margin-top:6px;"><strong>sin 78° = 0,98</strong></p>'
+                '<p style="margin-top:6px;"><strong>sin 78° ≈ 0,98</strong></p>'
             );
             // Display ve trig sonuçlarını temizle
             $('#calcDisplay').text('0');
@@ -4771,7 +4393,7 @@ function renderApp2Step(step){
             } else {
                 $('#ehFeedback').html(
                     `<div class="error-message">✗ Yanlış. <strong>İpucu:</strong> $\\sin 78° = \\dfrac{|EH|}{9}$<br>
-                     <span style="font-size:.9em;">sin 78° = 0,98 değerini hatırla.</span></div>`
+                     <span style="font-size:.9em;">sin 78° ≈ 0,98 değerini hatırla.</span></div>`
                 );
                 if(window.MathJax) MathJax.typesetPromise();
             }
@@ -4853,33 +4475,172 @@ function renderApp2Step(step){
     }
 }
 
-/* ══ DEĞERLENDİRME SORUSU ════════════════════════════════════════
-   Eğik prizma: taban 4×4, yanal ayrıt 10 cm, açı 30°
-   h = 10 × sin30° = 5 cm
-   Dik prizmanın yüzey alanı: 2·(4·4) + 4·(4·5) = 32 + 80 = 112 cm²
+/* ══ DEĞERLENDİRME SORUSU: 3 AŞAMALI ALAN VE KIYASLAMA ═══════════
+   1. Aşama: Eğik prizma: taban 4×4 kare, yanal ayrıt 10 cm, açı 30°
+      h = 10 × sin30° = 5 cm
+      Tabanlar (2 kare): 2 · (4 · 4) = 32 cm²
+      Dikdörtgen yan yüzler (2 adet): 2 · (4 · 10) = 80 cm²
+      Paralelkenar yan yüzler (2 adet): 2 · (4 · 5) = 40 cm²
+      A_eğik = 32 + 80 + 40 = 152 cm²
+   2. Aşama: Dik prizma: taban 4×4 kare, yükseklik h = 5 cm
+      Tabanlar (2 kare): 2 · (4 · 4) = 32 cm²
+      Yan yüzler (4 dikdörtgen): 4 · (4 · 5) = 80 cm²
+      A_dik = 32 + 80 = 112 cm²
+   3. Aşama: Kıyaslama: A_eğik > A_dik (152 cm² > 112 cm²)
 ════════════════════════════════════════════════════════════════ */
 function setupAssessment(){
-    $('#assessmentAnswer').val('').prop('disabled',false);
-    $('#assessmentFeedback').empty();
-    $('#assessmentCheckBtn').show().prop('disabled',false).off('click').on('click',function(){
-        const val=parseFloat($('#assessmentAnswer').val().replace(',','.'));
-        const correct=112;
+    // 1. Aşamayı başlat
+    $('#assessmentStage1').show();
+    $('#assessmentStage2').hide();
+    $('#assessmentStage3').hide();
+    $('#assessmentAnswer1').val('').prop('disabled', false);
+    $('#assessmentAnswer2').val('').prop('disabled', false);
+    $('#assessmentFeedback1').empty();
+    $('#assessmentFeedback2').empty();
+    $('#assessmentFeedback3').empty();
+    $('#assessmentCheckBtn1').show().prop('disabled', false);
+    $('#assessmentCheckBtn2').show().prop('disabled', false);
+    $('#assessmentStage1NextArea').hide();
+    $('#assessmentStage2NextArea').hide();
+    $('#assessmentFinalContinueArea').hide();
+    $('.assessment-cmp-btn').removeClass('correct-answer wrong-answer').prop('disabled', false);
+
+    if(window.MathJax) MathJax.typesetPromise();
+
+    // ── Aşama 1 Kontrol (Eğik Prizma) ──
+    $('#assessmentCheckBtn1').off('click').on('click', function(){
+        const val = parseFloat($('#assessmentAnswer1').val().replace(',', '.'));
+        const correct = 152;
         if(isNaN(val)){
-            $('#assessmentFeedback').html('<div class="error-message">Lütfen sayısal bir değer giriniz.</div>');
+            $('#assessmentFeedback1').html('<div class="error-message">Lütfen sayısal bir değer giriniz.</div>');
             return;
         }
-        if(Math.abs(val-correct)<=1){
-            $('#assessmentFeedback').html('<div class="success-message">✓ Doğru! Yüzey Alanı = 112 cm²<br><small>sin30° = 1/2 ⇒ h = 5 cm ⇒ Yüzey Alanı = (2 · 4 · 4) + (4 · 5 · 4) = 112 cm²</small></div>');
-            $('#assessmentCheckBtn').hide();
-            $('#assessmentAnswer').prop('disabled',true);
-            $('#assessmentContinueBtn').show().off('click').on('click',function(){
-                $('#assessmentDialog').fadeOut(300,()=>{ renderApp2Step(6); });
-            });
+        if(Math.abs(val - correct) <= 1.5){
+            $('#assessmentFeedback1').html(
+                '<div class="success-message">✓ Doğru! Eğik prizmanın yüzey alanı = 152 cm²<br>' +
+                '<small>Tabanlar (2 kare): 2 · (4 · 4) = 32 cm²<br>' +
+                'Dikdörtgen yan yüzler (2 adet): 2 · (4 · 10) = 80 cm²<br>' +
+                'Paralelkenar yan yüzler (2 adet): 2 · (4 · 5) = 40 cm²<br>' +
+                'Toplam = 32 + 80 + 40 = 152 cm²</small></div>'
+            );
+            $('#assessmentAnswer1').prop('disabled', true);
+            $('#assessmentCheckBtn1').hide();
+            $('#assessmentStage1NextArea').slideDown(200);
+        } else if(Math.abs(val - 112) <= 1.5){
+            $('#assessmentFeedback1').html('<div class="error-message">✗ 112 cm² sağdaki dik prizmanın yüzey alanıdır. Soldaki eğik prizmada yanal yüzlerin ikisi 4×10 dikdörtgen, ikisi ise yüksekliği 5 cm olan paralelkenardır (Toplam: 32 + 80 + 40 = 152 cm²).</div>');
         } else {
-            $('#assessmentFeedback').html('<div class="error-message">✗ İpucu: sin30° = 1/2, önce yüksekliği bulun.</div>');
+            $('#assessmentFeedback1').html('<div class="error-message">✗ İpucu: Taban kareleri (2×16 cm²), dikdörtgen yan yüzleri (2×40 cm²) ve paralelkenar yan yüzleri (2×[4×5] cm²) toplayınız.</div>');
         }
     });
-    $('#assessmentContinueBtn').hide();
+    $('#assessmentAnswer1').off('keydown.stage1enter').on('keydown.stage1enter', function(e){
+        if(e.key === 'Enter') $('#assessmentCheckBtn1').click();
+    });
+
+    // ── 2. Aşamaya Geçiş ──
+    $('#assessmentStage1NextBtn').off('click').on('click', function(){
+        $('#assessmentStage2').slideDown(300);
+        $('#assessmentStage1NextArea').hide();
+        if(window.MathJax) MathJax.typesetPromise();
+    });
+
+    // ── Aşama 2 Kontrol (Dik Prizma) ──
+    $('#assessmentCheckBtn2').off('click').on('click', function(){
+        const val = parseFloat($('#assessmentAnswer2').val().replace(',', '.'));
+        const correct = 112;
+        if(isNaN(val)){
+            $('#assessmentFeedback2').html('<div class="error-message">Lütfen sayısal bir değer giriniz.</div>');
+            return;
+        }
+        if(Math.abs(val - correct) <= 1.5){
+            $('#assessmentFeedback2').html(
+                '<div class="success-message">✓ Doğru! Dik prizmanın yüzey alanı = 112 cm²<br>' +
+                '<small>Tabanlar (2 kare): 2 · (4 · 4) = 32 cm²<br>' +
+                'Yan yüzler (4 dikdörtgen): 4 · (4 · 5) = 80 cm²<br>' +
+                'Toplam = 32 + 80 = 112 cm²</small></div>'
+            );
+            $('#assessmentAnswer2').prop('disabled', true);
+            $('#assessmentCheckBtn2').hide();
+            $('#assessmentStage2NextArea').slideDown(200);
+        } else {
+            $('#assessmentFeedback2').html('<div class="error-message">✗ İpucu: Taban Alanı = 2 · (4 × 4) = 32 cm², Yanal Alan = 4 · (4 × 5) = 80 cm². Toplam: 32 + 80 = 112 cm².</div>');
+        }
+    });
+    $('#assessmentAnswer2').off('keydown.stage2enter').on('keydown.stage2enter', function(e){
+        if(e.key === 'Enter') $('#assessmentCheckBtn2').click();
+    });
+
+    // ── 3. Aşamaya Geçiş ──
+    $('#assessmentStage2NextBtn').off('click').on('click', function(){
+        $('#assessmentStage3').slideDown(300);
+        $('#assessmentStage2NextArea').hide();
+        if(window.MathJax) MathJax.typesetPromise();
+    });
+
+    // ── Aşama 3: Kıyaslama Seçimi ──
+    $('.assessment-cmp-btn').off('click').on('click', function(){
+        const cmp = $(this).data('cmp');
+        $('.assessment-cmp-btn').removeClass('correct-answer wrong-answer').prop('disabled', true);
+        if(cmp === 'egikbig'){
+            $(this).addClass('correct-answer');
+            $('#assessmentFeedback3').html(
+                '<div class="success-message" style="line-height:1.7;">' +
+                '✓ <strong>Harika bir çıkarım!</strong><br>' +
+                'Eğik prizmada yanal ayrıt (10 cm), cisim yüksekliğinden (5 cm) daha uzun olduğu için ' +
+                'yanal yüzeyler genişler ve eğik prizmanın toplam yüzey alanı dik prizmanınkinden <strong>DAHA BÜYÜKTÜR</strong> ' +
+                '(152 cm² &gt; 112 cm²).<br><br>' +
+                '<div style="background:var(--instruction-bg);border:1.5px solid var(--instruction-border);padding:10px;border-radius:8px;font-size:0.92em;color:var(--text-primary);">' +
+                '💡 <strong>Önemli Bağlantı (Uygulama 3\'e Geçiş):</strong><br>' +
+                'Gördüğünüz gibi aynı taban ve yüksekliğe sahip bu iki cismin <strong>yüzey alanları birbirinden farklıdır</strong> (152 cm² &gt; 112 cm²). ' +
+                'Peki <strong>hacimleri</strong> hakkında ne söylenebilir? Bir sonraki bölümde <strong>Cavalieri İlkesi</strong> ile hacimlerin ilişkisini keşfedeceksiniz!' +
+                '</div></div>'
+            );
+            $('#assessmentFinalContinueArea').slideDown(250);
+        } else {
+            $(this).addClass('wrong-answer');
+            $('.assessment-cmp-btn').prop('disabled', false);
+            $('#assessmentFeedback3').html(
+                '<div class="error-message">✗ Tekrar düşünelim: Eğik prizmanın alanı 152 cm², dik prizmanın alanı ise 112 cm² olarak bulundu. Hangisi daha büyüktür?</div>'
+            );
+        }
+    });
+
+    // ── Final Tamamlama ──
+    $('#assessmentFinalContinueBtn').off('click').on('click', function(){
+        $('#assessmentDialog').fadeOut(300, function(){
+            renderApp2Step(6);
+        });
+    });
+}
+
+/* ══ DEĞERLENDİRME SORUSU 2: HACİM ════════════════════════════════
+   Eğik prizma: taban 4×4, yanal ayrıt 10 cm, açı 30°
+   h = 10 × sin30° = 5 cm
+   Taban Alanı = 4 × 4 = 16 cm²
+   Hacim: 16 × 5 = 80 cm³ (Cavalieri İlkesi)
+════════════════════════════════════════════════════════════════ */
+function setupVolumeAssessment(){
+    $('#assessmentVolAnswer').val('').prop('disabled', false);
+    $('#assessmentVolFeedback').empty();
+    $('#assessmentVolCheckBtn').show().prop('disabled', false).off('click').on('click', function(){
+        const val = parseFloat($('#assessmentVolAnswer').val().replace(',', '.'));
+        const correct = 80;
+        if(isNaN(val)){
+            $('#assessmentVolFeedback').html('<div class="error-message">Lütfen sayısal bir değer giriniz.</div>');
+            return;
+        }
+        if(Math.abs(val - correct) <= 1){
+            $('#assessmentVolFeedback').html('<div class="success-message">✓ Doğru! Taban Alanı = 4 &times; 4 = 16 cm², Yükseklik h = 10 &times; sin 30° = 5 cm ⇒ Hacim = 16 &times; 5 = 80 cm³.<br><small>Cavalieri ilkesi gereğince aynı taban alanı ve aynı yüksekliğe sahip dik prizmanın hacmi de 80 cm³\'tür.</small></div>');
+            $('#assessmentVolCheckBtn').hide();
+            $('#assessmentVolAnswer').prop('disabled', true);
+            $('#assessmentVolContinueBtn').show().off('click').on('click', function(){
+                $('#assessmentDialogVolume').fadeOut(300, () => { renderApp3Step(5); });
+            });
+        } else {
+            $('#assessmentVolFeedback').html('<div class="error-message">✗ İpucu: Taban Alanı = 4 &times; 4 = 16 cm². Yükseklik için h = 10 &times; sin 30° = 5 cm bağıntısını kullanınız.</div>');
+        }
+    });
+    $('#assessmentVolAnswer').off('keydown.volenter').on('keydown.volenter', function(e){ if(e.key === 'Enter') $('#assessmentVolCheckBtn').click(); });
+    $('#assessmentVolContinueBtn').hide();
 }
 
 /* ══ OLAY KÖPRÜSÜ ════════════════════════════════════════════════ */
@@ -4887,25 +4648,52 @@ $(document).on('measureDone',function(e,data){ });
 $(document).on('angleDone',function(e,data){ });
 
 /* ══ BAŞLANGIÇ ════════════════════════════════════════════════════ */
-// TEST: Serbest tabından başla
-//$('[data-tab="app1"],[data-tab="app2"],[data-tab="app3"],[data-tab="free"]').prop('disabled',false);
-//$('[data-tab="app3"]').addClass('active').siblings('.tab-button').removeClass('active');
-//requestAnimationFrame(()=>requestAnimationFrame(()=>initMainThreeJS()));
-//setTimeout(()=>{ loadApp3(); renderApp3Step(3); }, 200);
-// Testi bitince yukarıdaki 4 satırı sil, alttaki satırın başındaki // işaretini kaldır:
-$('#infoDialog').fadeIn(300);
+$('#helpBtn').on('click', function(){
+    $('#infoDialog').fadeIn(300);
+});
 
-// Mobil araç çubuğu toggle
+const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get('onizleme') === '1'){
+    $('body').addClass('preview-mode');
+    loadApplication('app1');
+    initMainThreeJS();
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 60);
+} else {
+    $('#infoDialog').fadeIn(300);
+    initMainThreeJS();
+}
+
+// Mobil araç çubuğu toggle ve sağ kaydırma ipucu
 function isMobile(){ return window.innerWidth <= 640; }
+function updateScrollHint(){
+    const tb = document.getElementById('sideToolbar');
+    const hint = document.getElementById('tbScrollHint');
+    if(!tb || !hint) return;
+    if(!isMobile() || !tb.classList.contains('tb-visible')){
+        hint.classList.remove('visible');
+        hint.style.display = 'none';
+        return;
+    }
+    hint.style.display = 'flex';
+    const canScrollRight = (tb.scrollWidth - tb.clientWidth - tb.scrollLeft) > 10;
+    if(canScrollRight){
+        hint.classList.add('visible');
+    } else {
+        hint.classList.remove('visible');
+    }
+}
 function initToolbarToggle(){
     const btn = document.getElementById('tbToggleBtn');
     const tb  = document.getElementById('sideToolbar');
     if(!btn || !tb) return;
     if(isMobile()){
         btn.style.display = 'flex';
+        updateScrollHint();
     } else {
         btn.style.display = 'none';
         tb.classList.remove('tb-visible');
+        const hint = document.getElementById('tbScrollHint');
+        if(hint){ hint.classList.remove('visible'); hint.style.display = 'none'; }
     }
 }
 $('#tbToggleBtn').on('click', function(){
@@ -4918,6 +4706,15 @@ $('#tbToggleBtn').on('click', function(){
     } else {
         tb.classList.add('tb-visible');
         btn.classList.add('tb-open');
+    }
+    setTimeout(updateScrollHint, 60);
+});
+$('#sideToolbar').on('scroll', updateScrollHint);
+$('#tbScrollHint').on('click', function(e){
+    e.stopPropagation();
+    const tb = document.getElementById('sideToolbar');
+    if(tb){
+        tb.scrollBy({ left: 130, behavior: 'smooth' });
     }
 });
 initToolbarToggle();
