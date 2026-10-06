@@ -3044,7 +3044,7 @@ function rebuildPrismSceneWith(pw, pd, aelen, ae_x, ae_y, angDeg){
     mainScene.add(new THREE.AmbientLight(0xffffff, .85));
     const dl1 = new THREE.DirectionalLight(0xffffff, .95); dl1.position.set(5,10,6); mainScene.add(dl1);
     const dl2 = new THREE.DirectionalLight(0xaaddff, .4);  dl2.position.set(-5,4,-6); mainScene.add(dl2);
-    const grid = new THREE.GridHelper(12,24,0x00d4ff,0x1a2347); grid.position.y=-0.01; mainScene.add(grid);
+    updatePrismGrid();
     addAxisArrows(mainScene);
 
     // Köşe koordinatları (sabit formüle uygun)
