@@ -2,8 +2,8 @@
 ## Üretici Test ve Matematiksel Doğrulama Notu
 
 **Materyal ID:** 11_materyal_egik_prizma_murat (MAT-011)  
-**Sürüm:** 1.3.5  
-**Tarih:** 2026-09-29  
+**Sürüm:** 1.3.6  
+**Tarih:** 2026-10-06  
 **Hedef TYMM Çıktıları:** MAT.12.3.1, MAT.12.3.3  
 **Beceriler & Süreç Bileşenleri:** MAB3 (Matematiksel Akıl Yürütme), KB2.6 (Bilgi Toplama / Ölçme)  
 
@@ -90,4 +90,46 @@ Three.js `BufferGeometry` üzerinde tüm tepe noktaları, yüzey normalleri ve k
 
 **Doğrulayan:** Murat İYİGÜN / MEB Materyal Ekibi  
 **Denetim Tarihi:** 2026-09-10  
-**Nihai Karar:** Üst yönetimin belirttiği tüm eksikler giderilmiş olup materyal **94 puanla RESMEN KABULE HAZIRDIR.**
+
+---
+
+### 6. 2 Ekim 2026 Tema ve Önizleme Eki Test Doğrulaması (Kabul Kanıtları)
+
+2 Ekim 2026 tarihli "Materyal Seti: Tema ve Önizleme Eki" yönergesi doğrultusunda yapılan revizyonlar ve yerel iframe test ortamında (`test_host.html`) gerçekleştirilen doğrulama sonuçları aşağıdadır:
+
+#### 6.1. Paket Giriş Noktaları
+* **Tam Materyal Çalışma Adresi:** `index.html`
+* **Sade Önizleme Adresi:** `index.html?onizleme=1` (veya `&onizleme=1`)
+
+#### 6.2. Tema Yönetimi ve PostMessage Köprüsü Doğrulaması
+* **Ortak Değişkenler:** `--ms-bg`, `--ms-surface`, `--ms-surface-alt`, `--ms-text` ve `--ms-preview-bg` ortak renk değişkenleri hem açık (varsayılan) hem koyu temada eksiksiz tanımlanmıştır. Sayfaya toplu filtre/invert uygulanmamış, nesne ve matematiksel renklerin okunaklılığı korunmuştur.
+* **matbis-theme El Sıkışması (Handshake):** Materyal iframe içine gömüldüğünde üst sayfaya `{"channel":"matbis-theme","type":"ready"}` mesajı iletilmiştir.
+* **Dinamik Tema Geçişi:** Üst sayfadan gelen `{"channel":"matbis-theme","type":"set-theme","theme":"dark"}` ve `theme:"light"` mesajları anında işlenerek arayüz ve 3B sahne zemin ızgarası başarıyla güncellenmiştir.
+* **İkinci Düğmenin Gizlenmesi:** Siteden tema sinyali alındığında materyalin kendi `#themeToggle` butonu otomatik gizlenmiştir.
+* **Bağımsız Kullanım:** Bağımsız çalıştırmada kullanıcının tema tercihi `localStorage` üzerinden korunmakta; siteden gelen tercihler yerel tercihi ezmemektedir.
+* **Durum Korunumu:** Tema geçişi sırasında 3B kamera açısı/uzaklığı, çizim adımı, ölçümler ve kullanıcı cevapları sıfırlanmamaktadır.
+* **Güvenlik & Origin:** `document.referrer`, ana pencere kökeni ve MEB/EBA alan adları (`*.eba.gov.tr`, `*.meb.gov.tr`) haricindeki kökenlerden gelen yetkisiz mesajlar engellenmiştir.
+
+#### 6.3. Sade Önizleme Kipi (`index.html?onizleme=1`)
+* **Sade Matematiksel Temsil:** Önizleme modunda uzun yönergeler, araç panelleri, bilgi diyaloğu (`#infoDialog`), hesap makinesi, cetvel/açıölçer ve arka plan dekoratif SVG animasyonları tamamen gizlenerek ortalanmış tek 3B eğik prizma sunulmuştur.
+* **Düz Nötr Fon:** Saman sarısı, bej veya gradyan yerine temaya uygun düz nötr zemin (`--ms-preview-bg`) kullanılmıştır.
+* **Çalışmayı Aç Bağlantısı:** Sağ üst köşede göze batmayan, `_top` hedefli ve tam çalışmaya yönlendiren "Çalışmayı Aç ↗" bağlantısı konumlandırılmıştır.
+* **İlerleme/Cevap İzolasyonu:** Önizleme kipi öğrenci ilerlemesini veya cevaplarını değiştirmemektedir.
+
+#### 6.4. Ekran Boyutları ve Duyarlılık (Responsive) Test Matrisi
+
+| Test Boyutu | Kapsam / Ortam | Beklenen Davranış | Gerçekleşen Sonuç | Durum |
+| :--- | :--- | :--- | :--- | :--- |
+| **240 × 240** (Kare) | Önizleme (`?onizleme=1`) | Prizma ortalanmalı, kesilmemeli, kaydırma çubuğu olmamalı | Model tam ortalandı, fov dinamik uyarlandı, taşma yok | **BAŞARILI** |
+| **333 × 333** (Kare) | Önizleme (`?onizleme=1`) | Kart içine tam sığmalı, net ve orantılı görünmeli | Tam uyumlu, fov 42-44°, 0 kesilme | **BAŞARILI** |
+| **320 × 200** (Yatay) | Önizleme (`?onizleme=1`) | Yatay kartta dikey/yanal taşma olmamalı | Yükseklik sığması tam, kamera açısı optimize | **BAŞARILI** |
+| **390 × 844** (Mobil) | Tam Materyal (`index.html`) | Dikey mobil ekranda tüm butonlar ve 3D tuval erişilebilir olmalı | Duyarlı düzen korundu, araçlar ve paneller tam işlevsel | **BAŞARILI** |
+| **1440 × 900** (Masaüstü)| Tam Materyal (`index.html`) | Geniş ekranda iki panelli dikey mimari bozulmamalı | Masaüstü çalışma alanı tam yerleşimli | **BAŞARILI** |
+
+#### 6.5. Kararlılık ve Kapat-Aç Doğrulaması
+* **3 Kez Aç-Kapat / Yenileme:** Iframe ve tarayıcı ortamında 3 ardışık kapatıp açma ve sayfa yenileme testinde boş kart, kaymış veya kesilmiş şekil oluşmamıştır.
+* **Çalışma Zamanı (Runtime) Hatası:** Konsolda 0 JS / WebGL hatası tespit edilmiştir (TDZ ReferenceError ve eahGroup uyuşmazlığı giderilmiştir).
+* **Değişen Dosyalar:** `index.html`, `manifest.json`, `test_host.html`, `URETICI_TEST_NOTU.md`.
+
+**Nihai Karar:** 2 Ekim 2026 Tema ve Önizleme Eki şartları eksiksiz karşılanmış olup materyal paketi teslim edilmeye hazırdır.
+

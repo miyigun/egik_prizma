@@ -4,6 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eğik Prizma Materyali</title>
+    <script>
+        window.__errors = [];
+        window.onerror = function(msg, url, line, col, err) {
+            window.__errors.push({msg: String(msg), line: line, err: String(err)});
+        };
+        (function(){
+            try {
+                var p = new URLSearchParams(window.location.search);
+                if(p.get('onizleme') === '1'){
+                    document.documentElement.classList.add('preview-mode');
+                }
+                var t = localStorage.getItem('matbis_theme');
+                if(t === 'dark'){
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            } catch(e){}
+        })();
+    </script>
     <script src="lib/jquery-3.6.0.min.js"></script>
     <script>
         window.MathJax = {
@@ -14,10 +32,23 @@
     <script id="MathJax-script" async src="lib/tex-mml-svg.js"></script>
     <script src="lib/three.min.js"></script>
     <style>
+        :root{
+            --ms-bg:#f0f4f8;
+            --ms-surface:#ffffff;
+            --ms-surface-alt:#e8eef5;
+            --ms-text:#1e293b;
+            --ms-preview-bg:#ffffff;
+        }
         :root[data-theme="dark"]{
-            --bg-primary:#0a0e27;--bg-secondary:#141b3d;--bg-tertiary:#1a2347;
+            --ms-bg:#0a0e27;
+            --ms-surface:#141b3d;
+            --ms-surface-alt:#1a2347;
+            --ms-text:#e0e6ff;
+            --ms-preview-bg:#0a0e27;
+
+            --bg-primary:var(--ms-bg);--bg-secondary:var(--ms-surface);--bg-tertiary:var(--ms-surface-alt);
             --border-color:#00d4ff;--border-glow:rgba(0,212,255,.5);
-            --text-primary:#e0e6ff;--text-secondary:#b0b8d4;--text-accent:#00d4ff;
+            --text-primary:var(--ms-text);--text-secondary:#b0b8d4;--text-accent:#00d4ff;
             --button-bg:#1e3a8a;--button-hover:#2563eb;--button-text:#fff;
             --panel-border:#00d4ff;
             --dialog-bg:rgba(20,27,61,.98);--dialog-overlay:rgba(0,0,0,.85);
@@ -32,9 +63,15 @@
             --prism-bg:radial-gradient(circle,#1a2347 0%,#0a0e27 100%);
         }
         :root[data-theme="light"]{
-            --bg-primary:#f0f4f8;--bg-secondary:#fff;--bg-tertiary:#e8eef5;
+            --ms-bg:#f0f4f8;
+            --ms-surface:#ffffff;
+            --ms-surface-alt:#e8eef5;
+            --ms-text:#1e293b;
+            --ms-preview-bg:#ffffff;
+
+            --bg-primary:var(--ms-bg);--bg-secondary:var(--ms-surface);--bg-tertiary:var(--ms-surface-alt);
             --border-color:#0ea5e9;--border-glow:rgba(14,165,233,.3);
-            --text-primary:#1e293b;--text-secondary:#475569;--text-accent:#0284c7;
+            --text-primary:var(--ms-text);--text-secondary:#475569;--text-accent:#0284c7;
             --button-bg:#0ea5e9;--button-hover:#0284c7;--button-text:#fff;
             --panel-border:#0ea5e9;
             --dialog-bg:rgba(255,255,255,.98);--dialog-overlay:rgba(0,0,0,.6);
@@ -490,20 +527,100 @@
             outline: 2.5px solid var(--border-color) !important;
             outline-offset: 2px !important;
         }
-        /* Önizleme Kipi Vitrin Katmanı (?onizleme=1) (M3 / MS-05) */
-        body.preview-mode { overflow: hidden !important; }
+        /* Önizleme Kipi Vitrin Katmanı (?onizleme=1) (M3 / MS-05 / 2 Ekim 2026 Eki) */
+        html.preview-mode,
+        html.preview-mode body,
+        body.preview-mode {
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: var(--ms-preview-bg) !important;
+        }
+        html.preview-mode .background-animation,
+        body.preview-mode .background-animation,
+        html.preview-mode .mobile-header,
         body.preview-mode .mobile-header,
+        html.preview-mode .left-panel,
         body.preview-mode .left-panel,
+        html.preview-mode .side-toolbar,
         body.preview-mode .side-toolbar,
+        html.preview-mode #tbToggleBtn,
         body.preview-mode #tbToggleBtn,
+        html.preview-mode #tbScrollHint,
         body.preview-mode #tbScrollHint,
-        body.preview-mode .floating-controls { display: none !important; }
-        body.preview-mode .main-content { padding: 0 !important; width: 100% !important; height: 100% !important; gap: 0 !important; }
-        body.preview-mode .right-panel { width: 100% !important; height: 100% !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; }
-        body.preview-mode #paintHint { bottom: 12px; }
+        html.preview-mode .floating-controls,
+        body.preview-mode .floating-controls,
+        html.preview-mode #paintHint,
+        body.preview-mode #paintHint,
+        html.preview-mode #measureHint,
+        body.preview-mode #measureHint,
+        html.preview-mode #angleHint,
+        body.preview-mode #angleHint,
+        html.preview-mode #measurePanel,
+        body.preview-mode #measurePanel,
+        html.preview-mode #angleOverlay,
+        body.preview-mode #angleOverlay,
+        html.preview-mode #netContainer,
+        body.preview-mode #netContainer,
+        html.preview-mode #a4Container,
+        body.preview-mode #a4Container,
+        html.preview-mode #infoDialog,
+        body.preview-mode #infoDialog,
+        html.preview-mode #assessmentDialog,
+        body.preview-mode #assessmentDialog { display: none !important; }
+        html.preview-mode .app-container,
+        body.preview-mode .app-container {
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            overflow: hidden !important;
+        }
+        html.preview-mode .main-content,
+        body.preview-mode .main-content { padding: 0 !important; margin: 0 !important; width: 100% !important; height: 100% !important; gap: 0 !important; }
+        html.preview-mode .right-panel,
+        body.preview-mode .right-panel { width: 100% !important; height: 100% !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; background: transparent !important; }
+        html.preview-mode #prismContainer,
+        body.preview-mode #prismContainer {
+            background: var(--ms-preview-bg) !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        /* Önizleme: Çalışmayı Aç Bağlantısı */
+        .preview-open-link {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 11px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--ms-text);
+            background: var(--ms-surface);
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            text-decoration: none;
+            box-shadow: 0 2px 8px var(--border-glow);
+            transition: all 0.2s;
+            opacity: 0.9;
+        }
+        .preview-open-link:hover {
+            opacity: 1;
+            transform: translateY(-1px);
+            background: var(--button-bg);
+            color: var(--button-text);
+        }
+        html.preview-mode .preview-open-link,
+        body.preview-mode .preview-open-link { display: inline-flex !important; }
     </style>
 </head>
 <body oncontextmenu="return false;">
+<a href="index.html" target="_top" class="preview-open-link" title="Tam çalışmayı aç">Çalışmayı Aç ↗</a>
 <div class="background-animation">
     <svg class="bg-shape" width="90" height="90" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="currentColor" style="color:var(--border-color)"/></svg>
     <svg class="bg-shape" width="110" height="110" viewBox="0 0 120 120"><polygon points="60,10 110,110 10,110" fill="currentColor" style="color:var(--border-color)"/></svg>
@@ -779,19 +896,103 @@
 <script>
 $(document).ready(function(){
 
-/* ══ TEMA ═══════════════════════════════════════════════════════ */
-let currentTheme='light';
-$('html').attr('data-theme',currentTheme);
-$('#themeToggle').on('click',function(){
-    currentTheme=currentTheme==='dark'?'light':'dark';
-    $('html').attr('data-theme',currentTheme);
-    $('#themeIcon').text(currentTheme==='dark'?'☀':'🌙');
-    if(typeof updatePrismGrid==='function') updatePrismGrid();
-    if(typeof eahGroup!=='undefined'&&eahGroup&&eahGroup.parent){
-        const wasVis=eahGroup.visible;
-        buildEAHOverlay();
-        if(eahGroup) eahGroup.visible=wasVis;
+var mainRenderer = null, mainScene = null, mainGridHelper = null, eahGroup = null;
+
+/* ══ TEMA YÖNETİMİ VE MATBİS ENTEGRASYONU (2 Ekim 2026 Eki) ════════ */
+let currentTheme = 'light';
+try {
+    const savedTheme = localStorage.getItem('matbis_theme');
+    if (savedTheme === 'dark') currentTheme = 'dark';
+} catch(e) {}
+window.currentTheme = currentTheme;
+
+function applyTheme(themeName, isFromSite = false) {
+    currentTheme = (themeName === 'dark') ? 'dark' : 'light';
+    window.currentTheme = currentTheme;
+    $('html').attr('data-theme', currentTheme);
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    if(document.body) document.body.setAttribute('data-theme', currentTheme);
+    $('#themeIcon').text(currentTheme === 'dark' ? '☀' : '🌙');
+
+    // 3D zemin ızgarasını güncelle (kamera pozisyonu ve nesneler korunur)
+    try {
+        if (typeof updatePrismGrid === 'function' && mainScene) updatePrismGrid();
+    } catch(e) {}
+
+    // EAH katmanı varsa durumunu koruyarak güncelle
+    if (typeof eahGroup !== 'undefined' && eahGroup && eahGroup.parent) {
+        const wasVis = eahGroup.visible;
+        if (typeof buildEAHOverlay === 'function') buildEAHOverlay();
+        if (eahGroup) eahGroup.visible = wasVis;
     }
+
+    if (isFromSite) {
+        // Site bağlantısı doğrulandı: ikinci tema düğmesini gizle
+        $('#themeToggle').hide();
+    } else {
+        // Bağımsız kullanım: tercihi yerel olarak kaydet
+        try { localStorage.setItem('matbis_theme', currentTheme); } catch(e) {}
+    }
+}
+window.applyTheme = applyTheme;
+window.setTheme = applyTheme;
+
+function getValidSiteOrigin() {
+    if (document.referrer) {
+        try {
+            const refOrigin = new URL(document.referrer).origin;
+            if (refOrigin && refOrigin !== 'null') return refOrigin;
+        } catch(e) {}
+    }
+    if (window.location.origin && window.location.origin !== 'null') {
+        return window.location.origin;
+    }
+    return null;
+}
+
+function initThemeBridge() {
+    const isIframe = (window.self !== window.top);
+    if (!isIframe) return;
+
+    function sendReady() {
+        const targetOrigin = getValidSiteOrigin();
+        if (targetOrigin && targetOrigin !== 'null') {
+            try {
+                window.parent.postMessage({ channel: 'matbis-theme', type: 'ready' }, targetOrigin);
+            } catch(e) {
+                console.warn('matbis-theme handshake error:', e);
+            }
+        }
+    }
+
+    sendReady();
+    setTimeout(sendReady, 300);
+    setTimeout(sendReady, 1000);
+
+    window.addEventListener('message', function(event) {
+        if (event.source !== window.parent) return;
+
+        const expectedOrigin = getValidSiteOrigin();
+        const originOk = (expectedOrigin && event.origin === expectedOrigin) ||
+                         (event.origin && (event.origin.endsWith('.eba.gov.tr') || event.origin.endsWith('.meb.gov.tr')));
+        if (!originOk && expectedOrigin) return;
+
+        const data = event.data;
+        if (data && typeof data === 'object' && data.channel === 'matbis-theme' && data.type === 'set-theme') {
+            if (data.theme === 'light' || data.theme === 'dark') {
+                applyTheme(data.theme, true);
+            }
+        }
+    });
+}
+
+// İlk tema kurulumu ve köprü dinleyicisi
+applyTheme(currentTheme, false);
+initThemeBridge();
+
+$('#themeToggle').on('click', function(){
+    const nextTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+    applyTheme(nextTheme, false);
 });
 
 function fmtNum(n,d=1){ return n.toFixed(d).replace('.',','); }
@@ -998,7 +1199,7 @@ function buildPrismBufferGeometryFrom(A,B,C,D,E,F,G,H){
     return g;
 }
 
-let mainRenderer=null,mainScene=null,mainCamera=null,mainPrism=null,mainAnimId=null;
+let mainCamera=null,mainPrism=null,mainAnimId=null;
 let faceMaterials=[], labelSprites=[], cornerSpheres=[], edgeCylinders=[], edgeLineObjs=[];
 let isDragging=false, prevMouse={x:0,y:0}, pointerMoved=false;
 
@@ -1070,7 +1271,7 @@ function addAxisArrows(scene){
     });
 }
 
-let mainGridHelper=null;
+// mainGridHelper declared at top
 function updatePrismGrid(){
     if(!mainScene) return;
     if(mainGridHelper) mainScene.remove(mainGridHelper);
@@ -1218,7 +1419,7 @@ function hideRightPanelRightPrism(){
 /* ═════════════════════════════════════════════════════════════════ */
 
 /* ══ EAH ÜÇGEN OVERLAY (App2 Step2 için) ══════════════════════ */
-let eahGroup = null;
+// eahGroup declared at top
 
 function buildEAHOverlay(){
     if(eahGroup){ mainScene.remove(eahGroup); eahGroup=null; }
@@ -1921,12 +2122,35 @@ window.addEventListener('mouseup',function(e){ if(isDragging&&!pointerMoved){ if
 prismEl.addEventListener('touchstart',function(e){ if(e.touches.length===1){ isDragging=true; pointerMoved=false; prevMouse={x:e.touches[0].clientX,y:e.touches[0].clientY}; }},{passive:true});
 window.addEventListener('touchmove',function(e){ if(!isDragging||e.touches.length!==1) return; const dx=e.touches[0].clientX-prevMouse.x,dy=e.touches[0].clientY-prevMouse.y; if(Math.abs(dx)>3||Math.abs(dy)>3) pointerMoved=true; if(!measureMode&&!angleMode){ camTheta-=dx*.008; camPhi=Math.max(.08,Math.min(Math.PI-.08,camPhi+dy*.008)); updateCamera(); } prevMouse={x:e.touches[0].clientX,y:e.touches[0].clientY}; },{passive:true});
 window.addEventListener('touchend',function(e){ if(isDragging&&e.changedTouches.length===1){ const isPaint=selectedColorIndex!==null||window._app1FaceSelectMode; const threshold=isPaint?12:4; if(!pointerMoved||isPaint&&(Math.abs(e.changedTouches[0].clientX-prevMouse.x)<threshold&&Math.abs(e.changedTouches[0].clientY-prevMouse.y)<threshold)){ if(measureMode) doMeasureEdge(e.changedTouches[0].clientX,e.changedTouches[0].clientY); else if(angleMode) doMeasureAngle(e.changedTouches[0].clientX,e.changedTouches[0].clientY); else paintFaceAtClick(e.changedTouches[0].clientX,e.changedTouches[0].clientY); } } isDragging=false; });
-window.addEventListener('resize',()=>{
-    const w=document.getElementById('threejs-canvas-wrapper');
-    if(!mainRenderer||!mainCamera||!w) return;
-    const ww=w.offsetWidth||500,hh=w.offsetHeight||500;
-    if(ww>0&&hh>0){ mainRenderer.setSize(ww,hh); mainCamera.aspect=ww/hh; mainCamera.updateProjectionMatrix(); }
-});
+function handleCanvasResize(){
+    const wrap = document.getElementById('threejs-canvas-wrapper');
+    if(!mainRenderer || !mainCamera || !wrap) return;
+    const ww = wrap.offsetWidth || 500, hh = wrap.offsetHeight || 500;
+    if(ww <= 0 || hh <= 0) return;
+    mainRenderer.setSize(ww, hh);
+    mainCamera.aspect = ww / hh;
+
+    // Önizleme veya dar alanlarda (240x240, 333x333, 320x200) prizmanın kesilmesini önleme
+    if(document.body.classList.contains('preview-mode')){
+        const aspect = ww / hh;
+        if(aspect < 1.0){
+            mainCamera.fov = 44 + (1.0 - aspect) * 12;
+        } else if(hh < 250){
+            mainCamera.fov = 46;
+        } else {
+            mainCamera.fov = 42;
+        }
+    }
+    mainCamera.updateProjectionMatrix();
+    if(typeof updateCamera === 'function') updateCamera();
+}
+window.addEventListener('resize', handleCanvasResize);
+try {
+    const wrapEl = document.getElementById('threejs-canvas-wrapper');
+    if(wrapEl && window.ResizeObserver){
+        new ResizeObserver(handleCanvasResize).observe(wrapEl);
+    }
+} catch(e){}
 
 // 3D Canvas için Klavye ile Döndürme Erişilebilirliği (M4 / MS-08 / MS-09)
 if(prismEl){
@@ -4724,11 +4948,18 @@ $('#helpBtn').on('click', function(){
 });
 
 const urlParams = new URLSearchParams(window.location.search);
-if(urlParams.get('onizleme') === '1'){
+const isPreviewMode = (urlParams.get('onizleme') === '1');
+
+if(isPreviewMode){
     $('body').addClass('preview-mode');
+    $('#infoDialog').hide();
     loadApplication('app1');
+    resetToolbar();
     initMainThreeJS();
-    setTimeout(() => window.dispatchEvent(new Event('resize')), 60);
+    requestAnimationFrame(() => {
+        handleCanvasResize();
+        setTimeout(handleCanvasResize, 100);
+    });
 } else {
     $('#infoDialog').fadeIn(300);
     initMainThreeJS();

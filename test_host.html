@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Matbis Tema Test Host Sayfası</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f1f5f9; }
+        .controls { margin-bottom: 12px; display: flex; gap: 10px; align-items: center; }
+        button { padding: 8px 16px; cursor: pointer; font-weight: bold; border-radius: 6px; border: 1px solid #94a3b8; }
+        iframe { width: 100%; height: 640px; border: 2px solid #cbd5e1; border-radius: 10px; background: #fff; }
+        #log { background: #0f172a; color: #38bdf8; padding: 10px; border-radius: 6px; font-family: monospace; font-size: 13px; margin-top: 10px; max-height: 120px; overflow-y: auto; }
+    </style>
+    <script>
+        window.receivedMessages = [];
+        window.addEventListener('message', function(e) {
+            console.log('Host received message:', e.data);
+            window.receivedMessages.push(e.data);
+            const logEl = document.getElementById('log');
+            if (logEl) {
+                logEl.innerText += '\n[' + new Date().toLocaleTimeString() + '] Alındı: ' + JSON.stringify(e.data);
+            }
+        });
+
+        function sendTheme(theme) {
+            const ifr = document.getElementById('matIframe');
+            if (ifr && ifr.contentWindow) {
+                ifr.contentWindow.postMessage({ channel: 'matbis-theme', type: 'set-theme', theme: theme }, window.location.origin);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h2>Matbis Tema ve İki Düğme Doğrulama Test Sayfası</h2>
+    <div class="controls">
+        <button onclick="sendTheme('dark')">🌙 Koyu Tema Gönder</button>
+        <button onclick="sendTheme('light')">☀ Açık Tema Gönder</button>
+    </div>
+    <iframe id="matIframe" src="index.html"></iframe>
+    <div id="log">İletişim Kayıtları:</div>
+</body>
+</html>
