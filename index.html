@@ -3948,6 +3948,9 @@ function buildCalc(containerId, onSin78){
     });
 
     function handleKeyboard(e){
+        const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+        if(tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable)) return;
+
         const k=e.key;
         if(k>='0'&&k<='9') handleAction(k);
         else if(k===','||k==='.') handleAction(',');
@@ -4074,6 +4077,9 @@ function buildSimpleCalc(containerId){
         handleAction($(this).data('action').toString());
     });
     function handleKeyboard(e){
+        const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+        if(tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable)) return;
+
         const k=e.key;
         if(k>='0'&&k<='9') handleAction(k);
         else if(k===','||k==='.') handleAction(',');
